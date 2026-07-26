@@ -122,11 +122,10 @@ async function selectYesterday() {
 async function checkJoinDate(joinDate) {
 
     const name = nickname.value.trim();
-
     const snapshot = await get(ref(db, `users/${name}`));
 
     if (!snapshot.exists()) {
-        showWarning("회원 정보를 찾을 수 없습니다.");
+        enterGame(joinDate);
         return;
     }
 
