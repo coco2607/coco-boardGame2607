@@ -1,18 +1,16 @@
-//loginFirebase.js
+// loginFirebase.js
 
 import {
     db,
     ref,
     get,
-    set,
     onDisconnect,
-    runTransaction,
-    serverTimestamp
+    runTransaction
 } from "../firebase.js";
+
 import { trim } from "../utils.js";
 
 const PLAYER = "player";
-
 
 // 로그인확인
 export async function login(nickname, password) {
@@ -37,17 +35,17 @@ export async function login(nickname, password) {
     return true;
 }
 
-
 // 일반회원비밀번호확인
 async function checkAccess(password) {
 
     const snapshot = await get(ref(db, "access/password"));
+
     if (!snapshot.exists()) {
         return false;
     }
+
     return snapshot.val() === password;
 }
-
 
 // 닉네임 중복 확인 및 접속 등록
 export async function joinUser(nickname) {
@@ -57,12 +55,14 @@ export async function joinUser(nickname) {
     const result = await runTransaction(
         playerRef,
         current => {
+
             if (current === null) {
 
                 return {
                     joinTime: Date.now()
                 };
             }
+
             return;
         }
     );
@@ -72,5 +72,4 @@ export async function joinUser(nickname) {
     }
 
     await onDisconnect(playerRef).remove();
-
 }

@@ -1,7 +1,10 @@
-// login.js
-
 import { login } from "./loginFirebase.js";
-import { trim, pad } from "../utils.js";
+import {
+    getCurrentDate,
+    trim,
+    pad
+} from "../utils.js";
+
 import {
     db,
     ref,
@@ -25,7 +28,6 @@ const warningOk = document.getElementById("warningOk");
 
 // 초기 실행
 setDateButton();
-
 
 // 이벤트
 enterBtn.addEventListener("click", openLoginModal);
@@ -72,12 +74,10 @@ function openLoginModal() {
     memberPassword.focus();
 }
 
-
 // 로그인 모달 닫기
 function closeLoginModal() {
     memberModal.classList.add("hidden");
 }
-
 
 // 비밀번호 확인
 async function checkPassword() {
@@ -102,17 +102,18 @@ async function checkPassword() {
     }
 }
 
-
 // 오늘 선택
 async function selectToday() {
     await checkJoinDate(getToday());
 }
 
-
 // 어제 선택
 async function selectYesterday() {
 
-    const date = new Date();
+    const today = getToday();
+
+    // 서울 날짜 기준으로 어제 계산
+    const date = new Date(`${today}T12:00:00+09:00`);
     date.setDate(date.getDate() - 1);
 
     await checkJoinDate(formatDate(date));
@@ -146,7 +147,6 @@ async function checkJoinDate(joinDate) {
     enterGame(joinDate);
 }
 
-
 // 게임 입장
 async function enterGame(joinDate) {
 
@@ -162,19 +162,27 @@ async function enterGame(joinDate) {
     location.href = "../board/board.html";
 }
 
-
 // 날짜 버튼 표시
 function setDateButton() {
 
-    const week = ["일", "월", "화", "수", "목", "금", "토"];
-    const today = new Date();
-    const yesterday = new Date();
+    const today = getToday();
 
+    // 서울 날짜 기준으로 어제 계산
+    const yesterday = new Date(`${today}T12:00:00+09:00`);
     yesterday.setDate(yesterday.getDate() - 1);
-    todayBtn.textContent = formatButtonDate(today, week);
-    yesterdayBtn.textContent = formatButtonDate(yesterday, week);
-}
 
+    const week = ["일", "월", "화", "수", "목", "금", "토"];
+
+    todayBtn.textContent = formatButtonDate(
+        new Date(`${today}T12:00:00+09:00`),
+        week
+    );
+
+    yesterdayBtn.textContent = formatButtonDate(
+        yesterday,
+        week
+    );
+}
 
 // 버튼 날짜 형식
 function formatButtonDate(date, week) {
@@ -186,12 +194,10 @@ function formatButtonDate(date, week) {
     return `${month}월 ${day}일 ${weekday}요일`;
 }
 
-
 // 오늘 날짜
 function getToday() {
-    return formatDate(new Date());
+    return getCurrentDate();
 }
-
 
 // 날짜 형식
 function formatDate(date) {
@@ -204,7 +210,7 @@ function formatDate(date) {
 }
 
 // 경고 모달
-function showWarning(message){
+function showWarning(message) {
     warningText.textContent = message;
     warningModal.classList.remove("hidden");
 }
