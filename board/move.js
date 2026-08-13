@@ -1,6 +1,7 @@
 // move.js
 
 import { boardData } from "./boardData.js";
+import { getCurrentDate, getCurrentTime } from "../utils.js";
 import {
     checkSpecial,
     getreward
@@ -62,8 +63,8 @@ export async function movePlayer(step) {
     // 이동 기록 저장
     await saveDiceResult({
 
-        date: new Date().toISOString().slice(0,10),
-        time: new Date().toLocaleTimeString(),
+        date: getCurrentDate(),
+        time: getCurrentTime(),
         nickname: sessionStorage.getItem("nickname"),
         joinDate: sessionStorage.getItem("joinDate"),
 
