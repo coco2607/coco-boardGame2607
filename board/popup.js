@@ -24,17 +24,10 @@ export function showPopup(message, image, type = "") {
     }
 
     button.onclick = async function () {
-
         modal.classList.add("hidden");
-
         if (window.refreshTotalPoint) {
             await window.refreshTotalPoint();
         }
-
-        if (type === "lottery") {
-            showLotteryPopup();
-        }
-
     };
 
     modal.classList.remove("hidden");
@@ -43,90 +36,70 @@ export function showPopup(message, image, type = "") {
 
 
 // 복권 확률
-function getLotteryPrize() {
-
-    const rand = Math.random();
-
-    if (rand < 0.50) return 3;   // 50%
-    if (rand < 0.80) return 4;   // 30%
-    if (rand < 0.90) return 5;   // 10%
-    if (rand < 0.95) return 6;   // 5%
-    if (rand < 0.98) return 7;   // 3%
-    return 8;                    // 2%
-
-}
-
-// 복권 팝업
 export function showLotteryPopup() {
 
-    const modal = document.getElementById("lotteryModal");
-    const number = document.getElementById("lotteryNumber");
-    const message = document.getElementById("lotteryMessage");
-    const button = document.getElementById("lotteryBtn");
+    return new Promise(resolve => {
 
-    modal.classList.remove("hidden");
+        const modal = document.getElementById("lotteryModal");
+        const number = document.getElementById("lotteryNumber");
+        const message = document.getElementById("lotteryMessage");
+        const button = document.getElementById("lotteryBtn");
 
-    button.style.display = "none";
+        modal.classList.remove("hidden");
 
-    number.textContent = "?";
-    message.textContent = "복권을 긁는 중...";
+        button.style.display = "none";
 
-    const prize = getLotteryPrize();
+        number.textContent = "?";
+        message.textContent = "복권을 긁는 중...";
 
-    const speeds = [
-        40, 70, 100, 130, 160,
-        190, 220, 255, 295, 340,
-        390, 450, 520, 600, 690,
-        790, 900, 1020, 1150, 1290,
-        1440, 1600, 1770, 1950, 2140,
-        2340, 2550, 2770, 3000
-    ];
+        const prize = getLotteryPrize();
 
-    let lastNumber = 0;
+        const speeds = [
+            40, 70, 100, 130, 160,
+            190, 220, 255, 295, 340,
+            390, 450, 520, 600, 690,
+            790, 900, 1020, 1150, 1290,
+            1440, 1600, 1770, 1950,
+            2140, 2340, 2550, 2770, 3000
+        ];
 
-    speeds.forEach((time, index) => {
+        let lastNumber = 0;
 
-        setTimeout(() => {
+        speeds.forEach((time, index) => {
 
-            if (index === speeds.length - 1) {
+            setTimeout(() => {
 
-                number.textContent = prize;
-                message.innerHTML = "";
+                if (index === speeds.length - 1) {
 
-                let tpoint =
-                    Number(sessionStorage.getItem("tpoint")) || 0;
+                    number.textContent = prize;
+                    message.innerHTML = "";
 
-                tpoint += prize;
+                    button.style.display = "inline-block";
+                    button.textContent = "확인";
 
-                sessionStorage.setItem("tpoint", tpoint);
+                    button.onclick = async function () {
 
-                button.style.display = "inline-block";
-                button.textContent = "확인";
+                        modal.classList.add("hidden");
 
-                button.onclick = async function () {
+                        resolve(prize);
 
-                    modal.classList.add("hidden");
+                    };
 
-                    if (window.refreshTotalPoint) {
-                        await window.refreshTotalPoint();
-                    }
+                } else {
 
-                };
+                    let random;
 
-            } else {
+                    do {
+                        random = Math.floor(Math.random() * 6) + 3;
+                    } while (random === lastNumber);
 
-                let random;
+                    lastNumber = random;
+                    number.textContent = random;
+                }
 
-                do {
-                    random = Math.floor(Math.random() * 6) + 3;
-                } while (random === lastNumber);
+            }, time);
 
-                lastNumber = random;
-                number.textContent = random;
-
-            }
-
-        }, time);
+        });
 
     });
 

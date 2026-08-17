@@ -1,6 +1,9 @@
 //special.js
 
-import { showPopup } from "./popup.js";
+import {
+    showPopup,
+    showLotteryPopup
+} from "./popup.js";
 
 let lastNormal = "";
 let lastNormalPoint = 0;
@@ -8,7 +11,7 @@ let lastNormalPoint = 0;
 let lastspecial = "";
 let lastspecialPoint = 0;
 
-export function checkSpecial(position) {
+export async function checkSpecial(position) {
 
     // 이전 보상 초기화
     lastNormal = "";
@@ -56,6 +59,7 @@ export function checkSpecial(position) {
                 "lottery.jpg",
                 "lottery"
             );
+            lastspecialPoint = await showLotteryPopup();
             break;
 
         case 40:

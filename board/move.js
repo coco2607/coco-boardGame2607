@@ -44,14 +44,14 @@ export async function movePlayer(step) {
     }
 
     // 먼저 도착한 칸 이벤트
-    checkSpecial(position);
+    await checkSpecial(position);
     let reward = getreward();
 
     // 40번을 지나갔다면 은행 이벤트
     if (passedBank) {
 
         await wait(1500);
-        checkSpecial(40);
+        await checkSpecial(40);
         const bankResult = getreward();
 
         reward.special = bankResult.special;
