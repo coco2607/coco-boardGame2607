@@ -86,6 +86,11 @@ export async function movePlayer(step) {
 
     });
 
+    // Firebase 저장 후 누적 포인트 갱신
+    if (window.refreshTotalPoint) {
+        await window.refreshTotalPoint();
+    }
+
     needRefreshPoint = true;
 
 }

@@ -1,8 +1,7 @@
 //special.js
 
 import {
-    showPopup,
-    showLotteryPopup
+    showPopup
 } from "./popup.js";
 
 let lastNormal = "";
@@ -53,13 +52,13 @@ export async function checkSpecial(position) {
 
         case 30:
             lastspecial = "행운복권";
-            lastspecialPoint = 0;
-            showPopup(
+
+            lastspecialPoint = await showPopup(
                 "축! 으랏차차 행운복권 당첨!",
                 "lottery.jpg",
                 "lottery"
             );
-            lastspecialPoint = await showLotteryPopup();
+
             break;
 
         case 40:
