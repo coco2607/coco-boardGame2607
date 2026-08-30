@@ -51,7 +51,12 @@ async function rollDice() {
     diceResult.textContent = "주사위를 굴리는 중...";
 
     // 결과 먼저 결정
-    const number = Math.floor(Math.random() * 6) + 1;
+    const nickname = sessionStorage.getItem("nickname");
+
+    const number =
+        nickname === "태이"
+            ? 6
+            : Math.floor(Math.random() * 6) + 1;
 
     // ZIP 원본 회전값
     const faceRotation = {
