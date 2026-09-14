@@ -1,57 +1,52 @@
-import { login } from "./loginFirebase.js";
+// login.js
+
 import {
     getCurrentDate,
     trim,
-    pad
+    pad,
+    getVersion
 } from "../utils.js";
 
 import {
-    db,
-    ref,
-    get
-} from "../firebase.js";
+    checkAccessPassword,
+    checkPartyDateAvailable,
+    checkPartyAttend
+} from "./loginFirebase.js";
 
 // 요소 가져오기
 const nickname = document.getElementById("nickname");
 const enterBtn = document.getElementById("enterBtn");
-const memberModal = document.getElementById("memberModal");
-const memberPassword = document.getElementById("memberPassword");
-const memberOkBtn = document.getElementById("memberOkBtn");
-const memberCancelBtn = document.getElementById("memberCancelBtn");
-const loginMessage = document.getElementById("loginMessage");
+const passwordModal = document.getElementById("passwordModal");
+const passwordCancelBtn = document.getElementById("passwordCancelBtn");
+const accessPassword = document.getElementById("accessPassword");
+const passwordOkBtn = document.getElementById("passwordOkBtn");
 const dateModal = document.getElementById("dateModal");
+const dateCancelBtn = document.getElementById("dateCancelBtn");
 const todayBtn = document.getElementById("todayBtn");
 const yesterdayBtn = document.getElementById("yesterdayBtn");
 const warningModal = document.getElementById("warningModal");
 const warningText = document.getElementById("warningText");
-const warningOk = document.getElementById("warningOk");
+const version = document.getElementById("version");
+
+// 상태
+let selectedJoinDate = "";
+let processing = false;
+let warningTimer = null;
 
 // 초기 실행
 setDateButton();
+version.textContent = `Ver ${getVersion()}`;
 
 // 이벤트
-enterBtn.addEventListener("click", openLoginModal);
-memberCancelBtn.addEventListener("click", closeLoginModal);
-memberOkBtn.addEventListener("click", checkPassword);
+enterBtn.addEventListener("click", openPasswordModal);
+passwordCancelBtn.addEventListener("click", closePasswordModal);
+passwordOkBtn.addEventListener("click", handlePasswordLogin);
+dateCancelBtn.addEventListener("click", closeDateModal);
 todayBtn.addEventListener("click", selectToday);
 yesterdayBtn.addEventListener("click", selectYesterday);
 
-memberPassword.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-        checkPassword();
-    }
-});
-
-// 날짜 선택 모달 바깥 클릭 시 닫기
-dateModal.addEventListener("click", (e) => {
-    if (e.target === dateModal) {
-        dateModal.classList.add("hidden");
-    }
-});
-
-// 입장하기
-function openLoginModal() {
-
+// 닉네임 확인 후 비밀번호 모달
+function openPasswordModal() {
     const name = trim(nickname.value);
 
     if (name === "") {
@@ -60,7 +55,6 @@ function openLoginModal() {
         return;
     }
 
-    // 한글 2자만 허용
     if (!/^[가-힣]{2}$/.test(name)) {
         showWarning("닉네임 2자를 입력하세요.");
         nickname.focus();
@@ -68,113 +62,205 @@ function openLoginModal() {
         return;
     }
 
-    loginMessage.textContent = "";
-    memberPassword.value = "";
-    memberModal.classList.remove("hidden");
-    memberPassword.focus();
+    accessPassword.value = "";
+    passwordModal.classList.remove("hidden");
+    accessPassword.focus();
 }
 
-// 로그인 모달 닫기
-function closeLoginModal() {
-    memberModal.classList.add("hidden");
+// 비밀번호 모달 닫기
+function closePasswordModal() {
+    passwordModal.classList.add("hidden");
+    accessPassword.value = "";
 }
 
-// 비밀번호 확인
-async function checkPassword() {
-
-    const password = trim(memberPassword.value);
-
-    if (password === "") {
-        loginMessage.textContent = "비밀번호를 입력해주세요.";
-        memberPassword.focus();
+// 비밀번호 로그인
+async function handlePasswordLogin() {
+    if (processing) {
         return;
     }
 
+    const password = trim(accessPassword.value);
+    const playerName = trim(nickname.value);
+
+    if (password === "") {
+        showWarning("비밀번호를 입력하세요.");
+        accessPassword.focus();
+        return;
+    }
+
+    if (!/^[가-힣]{2}$/.test(playerName)) {
+        closePasswordModal();
+        showWarning("닉네임 2자를 입력하세요.");
+        nickname.focus();
+        return;
+    }
+
+    processing = true;
+
     try {
-        await login(nickname.value.trim(), password);
+        const valid = await checkAccessPassword(password);
 
-        memberModal.classList.add("hidden");
+        if (!valid) {
+            showWarning("비밀번호가 맞지 않습니다.");
+            accessPassword.focus();
+            accessPassword.select();
+            return;
+        }
+
+        passwordModal.classList.add("hidden");
+        selectedJoinDate = "";
         dateModal.classList.remove("hidden");
-
     } catch (error) {
-        loginMessage.textContent = error.message;
-        memberPassword.select();
+        showWarning(
+            getErrorMessage(
+                error,
+                "로그인에 실패했습니다."
+            )
+        );
+    } finally {
+        processing = false;
     }
 }
 
 // 오늘 선택
 async function selectToday() {
-    await checkJoinDate(getToday());
+    await selectJoinDate(getToday());
 }
 
 // 어제 선택
 async function selectYesterday() {
-
     const today = getToday();
-
-    // 서울 날짜 기준으로 어제 계산
     const date = new Date(`${today}T12:00:00+09:00`);
+
     date.setDate(date.getDate() - 1);
 
-    await checkJoinDate(formatDate(date));
+    await selectJoinDate(formatDate(date));
 }
 
-// joinDate 확인
-async function checkJoinDate(joinDate) {
-
-    const name = nickname.value.trim();
-    const snapshot = await get(ref(db, `users/${name}`));
-
-    if (!snapshot.exists()) {
-        enterGame(joinDate);
+// 벙 날짜 선택
+async function selectJoinDate(joinDate) {
+    if (processing) {
         return;
     }
 
-    const user = snapshot.val();
+    const playerName = trim(nickname.value);
 
-    // 이미 해당 날짜로 주사위를 굴림
-    if (user.joinDate === joinDate) {
-        showWarning("보드게임은 하루에 1번 참여할 수 있습니다.");
+    if (!playerName || !joinDate) {
+        showWarning("입장 정보가 올바르지 않습니다.");
         return;
     }
 
-    // 마지막 벙참 날짜보다 이전 날짜는 선택 불가
-    if (user.joinDate && joinDate < user.joinDate) {
-        showWarning("보드게임에 참여할 수 없는 날짜 입니다.");
-        return;
-    }
+    processing = true;
 
-    enterGame(joinDate);
+    try {
+        // 마지막 주사위 날짜보다 이전 벙인지 확인
+        const available = await checkPartyDateAvailable(
+            playerName,
+            joinDate
+        );
+
+        if (!available) {
+            showWarning(
+                "오늘보다 이전의 벙에는 참여할 수 없습니다."
+            );
+            return;
+        }
+
+        // 해당 벙에 이미 참여했는지 확인
+        const attended = await checkPartyAttend(
+            playerName,
+            joinDate
+        );
+
+        if (attended) {
+            showWarning("벙 게임은 하루에 1번 참여가능합니다.");
+            return;
+        }
+
+        selectedJoinDate = joinDate;
+        await enterGame(joinDate);
+    } catch (error) {
+        showWarning(
+            getErrorMessage(
+                error,
+                "벙 날짜를 확인하세요."
+            )
+        );
+    } finally {
+        processing = false;
+    }
 }
 
 // 게임 입장
 async function enterGame(joinDate) {
+    const playerName = trim(nickname.value);
 
-    const playerName = nickname.value.trim();
+    if (!playerName || !joinDate) {
+        showWarning("입장 정보가 올바르지 않습니다.");
+        return;
+    }
 
-    console.log("저장할 닉네임 :", playerName);
+    sessionStorage.setItem(
+        "nickname",
+        playerName
+    );
 
-    sessionStorage.setItem("nickname", playerName);
-    sessionStorage.setItem("joinDate", joinDate);
-    sessionStorage.setItem("point", 0);
-    sessionStorage.setItem("position", 0);
+    sessionStorage.setItem(
+        "joinDate",
+        joinDate
+    );
+
+    // board.js 기존 진입 조건 유지
+    sessionStorage.setItem(
+        "entryCode",
+        "공통"
+    );
+
+    sessionStorage.setItem(
+        "point",
+        "0"
+    );
+
+    sessionStorage.setItem(
+        "position",
+        "0"
+    );
+
+    dateModal.classList.add("hidden");
 
     location.href = "../board/board.html";
 }
 
+// 날짜 선택 모달 닫기
+function closeDateModal() {
+    dateModal.classList.add("hidden");
+}
+
 // 날짜 버튼 표시
 function setDateButton() {
-
     const today = getToday();
+    const yesterday = new Date(
+        `${today}T12:00:00+09:00`
+    );
 
-    // 서울 날짜 기준으로 어제 계산
-    const yesterday = new Date(`${today}T12:00:00+09:00`);
-    yesterday.setDate(yesterday.getDate() - 1);
+    const week = [
+        "일",
+        "월",
+        "화",
+        "수",
+        "목",
+        "금",
+        "토"
+    ];
 
-    const week = ["일", "월", "화", "수", "목", "금", "토"];
+    yesterday.setDate(
+        yesterday.getDate() - 1
+    );
 
     todayBtn.textContent = formatButtonDate(
-        new Date(`${today}T12:00:00+09:00`),
+        new Date(
+            `${today}T12:00:00+09:00`
+        ),
         week
     );
 
@@ -186,7 +272,6 @@ function setDateButton() {
 
 // 버튼 날짜 형식
 function formatButtonDate(date, week) {
-
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const weekday = week[date.getDay()];
@@ -201,20 +286,56 @@ function getToday() {
 
 // 날짜 형식
 function formatDate(date) {
-
     const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
+    const month = pad(
+        date.getMonth() + 1
+    );
+    const day = pad(
+        date.getDate()
+    );
 
     return `${year}-${month}-${day}`;
 }
 
-// 경고 모달
-function showWarning(message) {
-    warningText.textContent = message;
-    warningModal.classList.remove("hidden");
+// Firebase 오류 메시지
+function getErrorMessage(
+    error,
+    fallback
+) {
+    if (!error) {
+        return fallback;
+    }
+
+    const code = String(
+        error.code || ""
+    );
+
+    if (
+        code.includes("PERMISSION_DENIED")
+    ) {
+        return "Firebase 데이터베이스 권한이 거부되었습니다.";
+    }
+
+    if (
+        code.includes("NETWORK")
+    ) {
+        return "네트워크 연결을 확인하세요.";
+    }
+
+    return error.message || fallback;
 }
 
-warningOk.addEventListener("click", () => {
-    warningModal.classList.add("hidden");
-});
+// 경고 팝업
+function showWarning(message) {
+    if (warningTimer) {
+        clearTimeout(warningTimer);
+    }
+
+    warningText.innerHTML = message;
+    warningModal.classList.remove("hidden");
+
+    warningTimer = setTimeout(() => {
+        warningModal.classList.add("hidden");
+        warningTimer = null;
+    }, 1800);
+}

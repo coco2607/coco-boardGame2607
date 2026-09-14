@@ -1,6 +1,7 @@
 // firebase.js
 
-import { initializeApp
+import {
+    initializeApp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 
 import {
@@ -17,23 +18,19 @@ import {
     runTransaction
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-import { createId, getCurrentDate, getCurrentTime
-} from "./utils.js";
-
-// firebase설정
+// Firebase 설정
 const firebaseConfig = {
-    apiKey: "AIzaSy......",
+    apiKey: "AIzaSyDkEtbhFu063SzveYyogGj2h_IIWJ3BxUk",
     authDomain: "dice2607.firebaseapp.com",
     databaseURL: "https://dice2607-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "dice2607",
     storageBucket: "dice2607.firebasestorage.app",
     messagingSenderId: "308468191758",
-    appId: "1:308468191758:web:4b0663..."
+    appId: "기존 실제 appId"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 
 export {
     db,
@@ -41,7 +38,7 @@ export {
     get,
     set,
     update,
-   remove,
+    remove,
     push,
     onValue,
     onDisconnect,

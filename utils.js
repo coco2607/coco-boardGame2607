@@ -1,5 +1,11 @@
 // utils.js
 
+
+// 푸터 버전
+export function getVersion() {
+    return "2.5.0";
+}
+
 // 숫자 두 자리
 export function pad(value) {
     return String(value).padStart(2, "0");

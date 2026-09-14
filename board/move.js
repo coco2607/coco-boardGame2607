@@ -1,118 +1,78 @@
 // move.js
 
-import { boardData } from "./boardData.js";
-import { getCurrentDate, getCurrentTime } from "../utils.js";
 import {
-    checkSpecial,
-    getreward
-} from "./special.js";
-import { saveDiceResult } from "../dice/diceFirebase.js";
-
+    boardData,
+    startPosition
+} from "./boardData.js";
 
 const playerPin = document.getElementById("playerPin");
-const positionText = document.getElementById("position");
+let moving = false;
 
-let needRefreshPoint = false;
-
-let reward = {
-    normal:"",
-    normalPoint:0,
-    special:"",
-    specialPoint:0,
-    tpoint:0
-};
-
-// 말 이동
 export async function movePlayer(step) {
-    let passedBank = false;
-    let position =
-        Number(sessionStorage.getItem("position")) || 0;
+    if (moving) {
+        return null;
+    }
 
-    const startPosition = position;
+    moving = true;
 
-    for (let i = 0; i < step; i++) {
-        position++;
+    try {
+        let position =
+            Number(sessionStorage.getItem("position")) || 0;
 
-        if (position > 40) {
-            position = 1;
-            passedBank = true;
+        const dice = Number(step);
+        const start = position;
+        let crossed40 = false;
+
+        if (!Number.isFinite(dice) || dice < 1) {
+            return null;
         }
 
-        sessionStorage.setItem("position", position);
-        updateMarker(position);
-        await wait(300);
+        for (let i = 0; i < dice; i++) {
+            position++;
+
+            if (position > 40) {
+                position = 1;
+                crossed40 = true;
+            }
+
+            sessionStorage.setItem(
+                "position",
+                String(position)
+            );
+
+            updateMarker(position);
+
+            await wait(300);
+        }
+
+        const tile = boardData[position];
+
+        return {
+            start: start,
+            dice: dice,
+            end: position,
+            type: tile?.type || "",
+            crossed40: crossed40
+        };
+    } finally {
+        moving = false;
     }
-
-    // 먼저 도착한 칸 이벤트
-    await checkSpecial(position);
-    let reward = getreward();
-
-    // 40번을 지나갔다면 은행 이벤트
-    if (passedBank) {
-
-        await wait(1500);
-        await checkSpecial(40);
-        const bankResult = getreward();
-
-        reward.special = bankResult.special;
-        reward.specialPoint = bankResult.specialPoint;
-        reward.tpoint += bankResult.specialPoint;
-    }
-
-    
-    // 이동 기록 저장
-    await saveDiceResult({
-
-        date: getCurrentDate(),
-        time: getCurrentTime(),
-        nickname: sessionStorage.getItem("nickname"),
-        joinDate: sessionStorage.getItem("joinDate"),
-
-        // 이동 정보
-        start: startPosition,
-        dice: step,
-        end: position,
-
-        // 일반칸 보상
-        normal: reward.normal,
-        normalPoint: reward.normalPoint,
-
-        // 특별 이벤트
-        special: reward.special,
-        specialPoint: reward.specialPoint,
-
-        // 총 획득 포인트
-        tpoint: reward.tpoint
-
-    });
-
-    // Firebase 저장 후 누적 포인트 갱신
-    if (window.refreshTotalPoint) {
-        await window.refreshTotalPoint();
-    }
-
-    needRefreshPoint = true;
-
 }
 
-// 말 위치
 export function updateMarker(position) {
+    const tile =
+        Number(position) === 0
+            ? startPosition
+            : boardData[position];
 
-    if (position === 0) {
-        positionText.textContent = "0번";
+    if (!tile) {
         return;
     }
 
-    const tile = boardData[position];
-
-    if (!tile) return;
-
     playerPin.style.left = tile.x + "%";
     playerPin.style.top = tile.y + "%";
-    positionText.textContent = `${position}번`;
 }
 
-// 대기
 function wait(ms) {
     return new Promise(resolve => {
         setTimeout(resolve, ms);

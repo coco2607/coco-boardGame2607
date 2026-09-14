@@ -10,10 +10,10 @@
     background:rgba(0,0,0,.45);
     z-index:9999;
 }
+
 .modal.hidden{
     display:none;
 }
-
 
 /* 팝업 */
 .diceBox{
@@ -35,9 +35,8 @@
     color:#FF4F93;
 }
 
-
 /* 3D 공간 */
-#scene{
+.scene{
     width:180px;
     height:180px;
     margin:0 auto;
@@ -45,8 +44,8 @@
     justify-content:center;
     align-items:center;
     perspective:1000px;
+    perspective-origin:center center;
 }
-
 
 /* 큐브 */
 #dice{
@@ -56,9 +55,8 @@
     margin:0 auto;
     transform-style:preserve-3d;
     transform-origin:center center;
-    transition:transform .9s cubic-bezier(.2,.8,.2,1);
+    will-change:transform;
 }
-
 
 /* 면 */
 #dice .face{
@@ -71,7 +69,6 @@
     -webkit-backface-visibility:hidden;
 }
 
-
 /* 이미지 */
 #dice img{
     width:100%;
@@ -82,11 +79,27 @@
     pointer-events:none;
 }
 
-
 /* 각 면 위치 */
-.front{transform:rotateY(0deg) translateZ(50px);}
-.back{transform:rotateY(180deg) translateZ(50px);}
-.right{transform:rotateY(90deg) translateZ(50px);}
-.left{transform:rotateY(-90deg) translateZ(50px);}
-.top{transform:rotateX(90deg) translateZ(50px);}
-.bottom{transform:rotateX(-90deg) translateZ(50px);}
+.front{
+    transform:rotateY(0deg) translateZ(50px);
+}
+
+.back{
+    transform:rotateY(180deg) translateZ(50px);
+}
+
+.right{
+    transform:rotateY(90deg) translateZ(50px);
+}
+
+.left{
+    transform:rotateY(-90deg) translateZ(50px);
+}
+
+.top{
+    transform:rotateX(90deg) translateZ(50px);
+}
+
+.bottom{
+    transform:rotateX(-90deg) translateZ(50px);
+}
