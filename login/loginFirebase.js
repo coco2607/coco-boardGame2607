@@ -40,7 +40,7 @@ export async function checkPartyDateAvailable(
     }
 
     const snapshot = await get(
-        ref(db, `member/으차방/${nickname}`)
+        ref(db, `member/${nickname}`)
     );
 
     if (!snapshot.exists()) {

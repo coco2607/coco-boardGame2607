@@ -3,7 +3,7 @@
 
 // 푸터 버전
 export function getVersion() {
-    return "2.5.0";
+    return "2.5.1";
 }
 
 // 숫자 두 자리

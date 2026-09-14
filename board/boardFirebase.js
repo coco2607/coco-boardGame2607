@@ -13,7 +13,7 @@ import {
 // 유저 정보 가져오기
 export async function getUser(nickname) {
     const snapshot = await get(
-        ref(db, `member/으차방/${nickname}`)
+        ref(db, `member/${nickname}`)
     );
 
     if (!snapshot.exists()) {
@@ -61,20 +61,29 @@ export async function saveUserState(position, point) {
 
     const userRef = ref(
         db,
-        `member/으차방/${nickname}`
+        `member/${nickname}`
     );
+
+    const snapshot = await get(userRef);
 
     const finalPosition = Number(position) || 0;
     const finalPoint = Number(point) || 0;
 
+    const userData = {
+        lastPosition: finalPosition,
+        lastRoll: serverTimestamp(),
+        lastUpdate: serverTimestamp(),
+        point: finalPoint
+    };
+
+    // 최초 보드게임 참여 시에만 활동 상태 입력
+    if (!snapshot.exists()) {
+        userData.state = "활동";
+    }
+
     await update(
         userRef,
-        {
-            lastPosition: finalPosition,
-            lastRoll: serverTimestamp(),
-            lastUpdate: serverTimestamp(),
-            point: finalPoint
-        }
+        userData
     );
 
     sessionStorage.setItem(
@@ -103,7 +112,7 @@ export async function saveBoardHistory(data) {
     }
 
     const historyRef = push(
-        ref(db, `history/으차방/${nickname}`)
+        ref(db, `history/${nickname}`)
     );
 
     await set(
