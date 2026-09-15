@@ -1,201 +1,144 @@
 /* popup.css */
 
-/* 일반 팝업 */
-.popupModal{
+/* ===========================
+   공통
+=========================== */
+
+/* 팝업 전체 화면 */
+.specialModal,
+.alertModal{
     position:fixed;
     inset:0;
+
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:20px;
-    background:rgba(20,20,20,.5);
-    z-index:10001;
+
+    background:rgba(0,0,0,.45);
+    z-index:9999;
 }
 
 /* 숨김 */
 .hidden{
-    display:none !important;
-}
-
-/* 일반 팝업 박스 */
-.popupBox{
-    width:100%;
-    max-width:340px;
-    padding:26px 22px 22px;
-    background:#FFFFFF;
-    border-radius:22px;
-    text-align:center;
-    box-shadow:0 16px 40px rgba(0,0,0,.18);
-    overflow:hidden;
-    animation:popupShow .2s ease-out;
-}
-
-/* 일반 팝업 등장 */
-@keyframes popupShow{
-    from{
-        opacity:0;
-        transform:translateY(8px) scale(.97);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0) scale(1);
-    }
-}
-
-/* 일반 팝업 내용 */
-.popupModal .popupBox{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
-/* 일반 팝업 이미지 */
-#popupImage{
-    width:220px;
-    height:220px;
-    object-fit:contain;
     display:none;
-    margin:0;
-    border-radius:14px;
 }
 
-/* 일반 팝업 메시지 */
-#popupMessage{
-    width:100%;
-    margin:0;
-    font-size:20px;
-    font-weight:700;
-    color:#333333;
-    line-height:1.55;
+
+/* ===========================
+   팝업 박스
+=========================== */
+
+.specialBox,
+.alertBox{
+    width:340px;
+    padding:30px;
+
+    background:#FFF7FA;
+    border-radius:18px;
+
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
 }
 
-/* 일반 팝업 보상 */
-#popupReward{
-    width:100%;
-    min-height:36px;
-    margin:0;
-    font-size:30px;
-    font-weight:900;
-    color:#FF4F93;
-    line-height:1.2;
+
+/* ===========================
+   이벤트 팝업
+=========================== */
+
+/* 이벤트 이미지 */
+#specialImage{
+    width:220px;
+    height:auto;
+    display:block;
+    margin:0 auto 20px;
 }
 
-/* 보상 없을 때 */
-#popupReward:empty{
-    min-height:0;
-}
-
-/* 일반 팝업 요소 간격 */
-#popupImage{
-    margin-bottom:20px;
-}
-
-#popupMessage + #popupReward{
-    margin-top:8px;
-}
-
-#popupMessage + #popupReward:empty{
-    margin-top:0;
-}
-
-/* 확인 버튼 */
-#popupCloseBtn{
-    width:100%;
-    height:56px;
-    margin-top:24px;
-    border:none;
-    border-radius:13px;
-    background:#FF4F93;
-    color:#FFFFFF;
+/* 이벤트 설명 */
+#specialMessage{
     font-size:18px;
-    font-weight:800;
-    cursor:pointer;
-    transition:.18s;
+    font-weight:bold;
+    color:#333;
+    line-height:1.6;
+    margin-bottom:25px;
 }
 
-#popupCloseBtn:hover{
-    background:#F23C86;
-}
 
-#popupCloseBtn:active{
-    background:#D93474;
-    transform:scale(.98);
-}
+/* ===========================
+   복권 팝업
+=========================== */
 
-#popupCloseBtn:disabled{
-    opacity:.5;
-    cursor:not-allowed;
-}
-
-/* 복권 팝업 */
-.lotteryModal{
-    position:fixed;
-    inset:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:20px;
-    background:rgba(20,20,20,.5);
-    z-index:10000;
-}
-
-/* 복권 팝업 박스 */
-.lotteryModal .popupBox{
-    width:100%;
-    max-width:340px;
-}
-
-/* 복권 제목 */
-.lotteryModal h2{
-    margin:0 0 10px;
+.specialBox h2{
     font-size:28px;
-    font-weight:900;
     color:#FF4F93;
+    margin-bottom:10px;
 }
 
 /* 복권 숫자 */
 #lotteryNumber{
-    margin:18px 0 4px;
     font-size:120px;
     font-weight:900;
     color:#FF4F93;
     line-height:1;
+    margin:10px 0;
 }
 
 /* 복권 결과 */
 #lotteryMessage{
-    min-height:30px;
-    margin:0 0 20px;
     font-size:24px;
-    font-weight:700;
+    font-weight:bold;
     color:#FF4F93;
-    line-height:1.3;
+    min-height:0px;
+    margin-bottom:5px;
 }
 
-/* 복권 버튼 */
-#lotteryBtn{
+
+/* ===========================
+   시간 제한 팝업
+=========================== */
+
+#alertMessage{
+    font-size:16px;
+    font-weight:300;
+    color:#333;
+    line-height:1.6;
+    white-space:pre-line;
+    word-break:keep-all;
+    margin-bottom:25px;
+}
+
+
+/* ===========================
+   공통 버튼
+=========================== */
+
+#specialCloseBtn,
+#lotteryBtn,
+#alertCloseBtn{
     width:100%;
     height:56px;
+
     border:none;
-    border-radius:13px;
+    border-radius:12px;
+
     background:#FF4F93;
     color:#FFFFFF;
+
     font-size:18px;
-    font-weight:800;
+    font-weight:bold;
+
     cursor:pointer;
-    transition:.18s;
+    transition:.2s;
 }
 
-#lotteryBtn:hover{
+#specialCloseBtn:hover,
+#lotteryBtn:hover,
+#alertCloseBtn:hover{
     background:#F23C86;
 }
 
-#lotteryBtn:active{
-    background:#D93474;
-    transform:scale(.98);
-}
-
-#lotteryBtn:disabled{
+#specialCloseBtn:disabled,
+#lotteryBtn:disabled,
+#alertCloseBtn:disabled{
     opacity:.5;
     cursor:not-allowed;
 }

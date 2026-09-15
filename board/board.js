@@ -1,100 +1,104 @@
 // board.js
 
-import "./dice.js";
-import {updateMarker} from "./move.js";
-import {getUser} from "./boardFirebase.js";
-import {getVersion} from "../utils.js";
+import "../dice/dice.js";
+import { updateMarker } from "./move.js";
+import { getUser } from "./boardFirebase.js";
+import { checkSpecial } from "./special.js";
+import { joinUser } from "../login/loginFirebase.js";
 
 // 요소 가져오기
 const nickname = document.getElementById("nickname");
 const joinDate = document.getElementById("joinDate");
-const entryCode = document.getElementById("entryCode");
 const totalPoint = document.getElementById("totalPoint");
-const position = document.getElementById("position");
-const version = document.getElementById("version");
 
 // 초기 실행
 init();
 
 async function init() {
+
     const playerName = sessionStorage.getItem("nickname");
-    const playerJoinDate = sessionStorage.getItem("joinDate");
-    const playerEntryCode = sessionStorage.getItem("entryCode");
-
-    version.textContent = `Ver ${getVersion()}`;
-
-    if (!playerName || !playerJoinDate || !playerEntryCode) {
-        location.href = "../login/login.html";
-        return;
-    }
-
-    nickname.textContent = `${playerName}님`;
-    joinDate.textContent = `(${playerJoinDate})`;
-    entryCode.textContent = `입장코드(${playerEntryCode})`;
 
     try {
+        // 접속 중인지 확인 및 접속 등록
+        await joinUser(playerName);
+
+        // 플레이어 정보 불러오기
         await loadPlayer();
-    } catch (error) {
+
+    } catch (err) {
+
+        alert(err.message);
+
         location.href = "../login/login.html";
+
     }
+
 }
 
 // 플레이어 정보 불러오기
 async function loadPlayer() {
-    const playerName = sessionStorage.getItem("nickname");
 
-    if (!playerName) {
-        throw new Error("플레이어 정보가 없습니다.");
+    const playerName = sessionStorage.getItem("nickname");
+    const playerJoinDate = sessionStorage.getItem("joinDate");
+
+    nickname.textContent = `${playerName || "닉네임"}님`;
+
+    if (playerJoinDate) {
+        const date = new Date(playerJoinDate);
+
+        joinDate.textContent =
+            `${date.getMonth() + 1}월 ${date.getDate()}일`;
+    } else {
+        joinDate.textContent = "";
     }
+
+    // Firebase에서 마지막 도착 위치 가져오기
+    const user = await getUser(playerName);
+    const playerPosition = user.last || 0;
+
+    // 가져온 위치 저장
+    sessionStorage.setItem(
+        "position",
+        playerPosition
+    );
+
+    // 말 이동 표시
+    updateMarker(Number(playerPosition) || 0);
+    totalPoint.textContent = `${user.totalP || 0}P`;
+}
+
+// 누적포인트 새로고침
+window.refreshTotalPoint = async function () {
+
+    const playerName = sessionStorage.getItem("nickname");
 
     const user = await getUser(playerName);
 
-    if (!user) {
-        throw new Error("플레이어 정보를 찾을 수 없습니다.");
-    }
+    totalPoint.textContent = `${user.totalP || 0}P`;
 
-    const playerPosition = Number(user.position) || 0;
-    const playerPoint = Number(user.point) || 0;
-
-    sessionStorage.setItem(
-        "position",
-        String(playerPosition)
-    );
-
-    sessionStorage.setItem(
-        "point",
-        String(playerPoint)
-    );
-
-    position.textContent =
-        `${playerPosition}번`;
-
-    totalPoint.textContent =
-        `${playerPoint.toLocaleString()}P`;
-
-    updateMarker(playerPosition);
-}
-
-// Firebase 최신 정보로 화면 갱신
-window.refreshTotalPoint = async function() {
-    try {
-        await loadPlayer();
-    } catch (error) {}
 };
 
 // 테스트용 강제 이동
-window.testMove = function(positionValue) {
-    const pos = Number(positionValue);
+window.testMove = function(position){
 
-    if (pos < 1 || pos > 40) {
+    const pos = Number(position);
+
+    if(pos < 1 || pos > 40){
+        alert("1~40 사이 숫자를 입력하세요.");
         return;
     }
 
     sessionStorage.setItem(
         "position",
-        String(pos)
+        pos
     );
 
-    position.textContent = `${pos}번`;
     updateMarker(pos);
+
+    checkSpecial(pos);
+
+    console.log(
+        `${pos}번 칸 이벤트 테스트`
+    );
+
 };

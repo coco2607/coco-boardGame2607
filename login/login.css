@@ -2,12 +2,14 @@
 
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
 
-/* 기본 설정 */
+/* ===========================
+   기본 설정
+=========================== */
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:"Pretendard",sans-serif;
+    font-family:"Pretendard", sans-serif;
 }
 
 body{
@@ -16,32 +18,54 @@ body{
 
 .container{
     width:100%;
-    max-width:240px;
-    min-height:100vh;
+    max-width:280px;
+
     margin:0 auto;
+
+    min-height:100vh;
+
     display:flex;
     flex-direction:column;
     justify-content:center;
-    padding:0 0 130px;
+
+    padding:0px;
+    padding-bottom:130px;
+
     text-align:center;
 }
 
-/* 접속 화면 */
+
+/* ===========================
+   접속 화면
+=========================== */
+.container{
+    width:100%;
+    max-width:240px;
+    text-align:center;
+}
+
 h1{
     margin-bottom:20px;
+
     font-size:34px;
     color:#333;
 }
 
-/* 닉네임 입력창 */
+/* ===========================
+   닉네임 입력창
+=========================== */
 input{
     width:100%;
     height:46px;
+
     padding:0 16px;
     margin-bottom:12px;
+
     border:1px solid #CCC;
     border-radius:12px;
+
     outline:none;
+
     background:#FFF;
     font-size:18px;
     text-align:center;
@@ -51,17 +75,25 @@ input:focus{
     border-color:#FF4F93;
 }
 
-/* 공통 버튼 */
+
+/* ===========================
+   공통 버튼
+=========================== */
 button{
     width:100%;
     height:52px;
+
     border:none;
     border-radius:12px;
+
     background:#FF4F93;
     color:#FFF;
+
     font-size:20px;
     font-weight:bold;
+
     cursor:pointer;
+
     transition:.2s;
 }
 
@@ -73,15 +105,20 @@ button:active{
     background:#D93474;
 }
 
-/* 로그인 모달 */
+
+/* ===========================
+   로그인 모달
+=========================== */
 .modal{
     position:fixed;
     inset:0;
+
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:20px;
+
     background:rgba(0,0,0,.4);
+
     z-index:9999;
 }
 
@@ -90,25 +127,20 @@ button:active{
 }
 
 .modalBox{
-    position:relative;
     width:90%;
     max-width:330px;
+
     padding:25px;
+
     background:#FFF;
     border-radius:15px;
+
     text-align:center;
 }
 
 .modalBox h2{
-    margin-bottom:14px;
-    color:#FF438B;
-    font-weight:bold;
-}
-
-.modalBox h3{
-    margin-bottom:18px;
-    color:#444;
-    font-size:20px;
+    margin-bottom:14px;/*제목과 입력창*/
+    color:#ff438b;
     font-weight:bold;
 }
 
@@ -116,74 +148,41 @@ button:active{
     margin-bottom:8px;
 }
 
-/* 모달 닫기 */
-.modalClose{
-    position:absolute;
-    top:10px;
-    right:10px;
-    width:30px;
-    height:30px;
-    padding:0;
-    border:0;
-    border-radius:50%;
-    background:transparent;
-    cursor:pointer;
-}
-
-.modalClose:hover{
-    background:#F5F5F5;
-}
-
-.modalClose:active{
-    background:#EEEEEE;
-}
-
-.modalClose::before,
-.modalClose::after{
-    content:"";
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:18px;
-    height:2px;
-    background:#777;
-    transform:translate(-50%,-50%) rotate(45deg);
-}
-
-.modalClose::after{
-    transform:translate(-50%,-50%) rotate(-45deg);
-}
-
-.modalClose:hover::before,
-.modalClose:hover::after{
-    background:#222;
-}
-
-/* 멤버 선택 */
-.memberButton{
+.modalButton{
     display:flex;
-    flex-direction:column;
-    gap:12px;
-    padding-top:25px;
+    gap:10px;
+    margin-top:-8px;
 }
 
-.memberButton button{
-    width:100%;
+.modalButton button{
+    flex:1;
 }
 
-/* 참가자 로그인 */
-#participantJoinDate{
-    margin-bottom:14px;
-    color:#777;
-    font-size:15px;
-    font-weight:600;
+.modalButton button:first-child{
+    background:#FF4F93;
+    color:#FFF;
 }
 
-#memberPassword{
-    margin-bottom:8px;
+.modalButton button:last-child{
+    background:#D9D9D9;
+    color:#444;
 }
 
-/* 날짜 선택 모달 */
+.modalButton button:last-child:active{
+    background:#C8C8C8;
+}
+
+
+/* ===========================
+   날짜 선택 모달
+=========================== */
+.modalBox h3{
+    font-size:20px;
+    margin-bottom:18px;/*제목과 날짜버튼*/
+    color:#444;
+    font-weight:bold;
+}
+
 .dateButton{
     display:flex;
     flex-direction:column;
@@ -195,31 +194,13 @@ button:active{
     width:95%;
 }
 
-/* 임시코드 발급 */
-#codeText{
-    margin-bottom:18px;
-    color:#FF4F93;
-    font-size:32px;
-    font-weight:bold;
-    letter-spacing:4px;
-}
 
-#codeModal .modalBox > p:not(#codeText){
-    margin-bottom:24px;
-    color:#555;
-    font-size:15px;
-    line-height:1.6;
-    word-break:keep-all;
-}
-
-#codeOk{
-    margin-top:0;
-}
-
-/* 경고 모달 */
+/* ===========================
+   경고(알림) 모달
+=========================== */
 .warningBox{
     width:90%;
-    max-width:330px;
+    max-width:330px;   /* 로그인 모달과 동일 */
 }
 
 #warningText{
@@ -229,31 +210,51 @@ button:active{
     word-break:keep-all;
 }
 
-/* 하단 안내 */
+#warningOk{
+    margin-top:24px;
+}
+
+/* ===========================
+   로그인 메시지
+=========================== */
+#loginMessage{
+    font-size:14px;    
+    margin-bottom:15px;
+    color:#FF0000;
+    font-weight:350;
+}
+
+
+/* ===========================
+   하단 안내
+=========================== */
 .footerInfo{
     position:fixed;
-    left:50%;
+    left:0;
     bottom:0;
+
     width:100%;
-    max-width:430px;
-    padding:7px 15px;
-    background:transparent;
-    border-top:none;
+    padding:16px;
+
+    background:#F5F5F5;
+    border-top:1px solid #DDD;
+
     text-align:left;
-    transform:translateX(-50%);
+    z-index:999;
 }
 
 .footerTitle{
-    margin-bottom:-2px;
-    font-size:9px;
-    font-weight:500;
-    color:#666;
+    margin-bottom:2px;
+
+    color:#555;
+    font-size:15px;
+    font-weight:bold;
 }
 
 .footerInfo a{
-    font-size:12.5px;
-    font-weight:500;
-    color:#2F7FA3;
+    color:#1976D2;
+    font-size:20px;
+    font-weight:bold;
     text-decoration:none;
 }
 
@@ -262,15 +263,17 @@ button:active{
 }
 
 .footerManager{
-    margin-top:1px;
+    margin-top:10px;
+
     display:flex;
     justify-content:space-between;
     align-items:center;
-    font-size:8.5px;
-    color:#666;
+
+    font-size:14px;
+    color:#777;
 }
 
 .version{
-    color:#666;
-    font-size:9.5px;
+    font-size:14px;
+    color:#999;
 }

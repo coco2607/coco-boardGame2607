@@ -3,102 +3,73 @@
 import {
     db,
     ref,
-    get
+    get,
+    onDisconnect,
+    runTransaction
 } from "../firebase.js";
 
-import {trim} from "../utils.js";
+import { trim } from "../utils.js";
 
-// 보드게임 접근 비밀번호 확인
-export async function checkAccessPassword(password) {
+const PLAYER = "player";
+
+// 로그인확인
+export async function login(nickname, password) {
+
+    nickname = trim(nickname);
     password = trim(password);
 
-    if (!password) {
-        return false;
+    if (nickname === "") {
+        throw new Error("닉네임 2자를 입력하세요.");
     }
 
-    const snapshot = await get(
-        ref(db, "access/password")
-    );
-
-    if (!snapshot.exists()) {
-        return false;
+    if (password === "") {
+        throw new Error("비밀번호를 입력해주세요.");
     }
 
-    return String(snapshot.val()) === password;
+    const access = await checkAccess(password);
+
+    if (!access) {
+        throw new Error("비밀번호가 올바르지 않습니다.");
+    }
+
+    return true;
 }
 
-// 마지막 주사위 날짜보다 이전 벙인지 확인
-export async function checkPartyDateAvailable(
-    nickname,
-    joinDate
-) {
-    nickname = trim(nickname);
-    joinDate = trim(joinDate);
+// 일반회원비밀번호확인
+async function checkAccess(password) {
 
-    if (!nickname || !joinDate) {
-        return true;
-    }
-
-    const snapshot = await get(
-        ref(db, `member/${nickname}`)
-    );
+    const snapshot = await get(ref(db, "access/password"));
 
     if (!snapshot.exists()) {
-        return true;
+        return false;
     }
 
-    const data = snapshot.val();
+    return snapshot.val() === password;
+}
 
-    if (
-        data.lastRoll === undefined ||
-        data.lastRoll === null ||
-        data.lastRoll === ""
-    ) {
-        return true;
-    }
+// 닉네임 중복 확인 및 접속 등록
+export async function joinUser(nickname) {
 
-    const lastRoll = Number(
-        data.lastRoll
-    );
+    const playerRef = ref(db, `player/${nickname}`);
 
-    if (!Number.isFinite(lastRoll)) {
-        return true;
-    }
+    const result = await runTransaction(
+        playerRef,
+        current => {
 
-    const lastRollDate =
-        new Intl.DateTimeFormat(
-            "en-CA",
-            {
-                timeZone: "Asia/Seoul",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit"
+            if (current === null) {
+
+                return {
+                    joinTime: Date.now()
+                };
             }
-        ).format(
-            new Date(lastRoll)
-        );
 
-    return joinDate >= lastRollDate;
-}
-
-// 해당 벙 참여 여부 확인
-export async function checkPartyAttend(
-    nickname,
-    joinDate
-) {
-    nickname = trim(nickname);
-    joinDate = trim(joinDate);
-
-    if (!nickname || !joinDate) {
-        return false;
-    }
-
-    const snapshot = await get(
-        ref(
-            db,
-            `party/${joinDate}/attend/${nickname}`
-        )
+            return;
+        }
     );
 
-    return snapshot.exists();
+    if (!result.committed) {
+        throw new Error("이미 접속중 입니다.");
+    }
+
+    await onDisconnect(playerRef).remove();
 }

@@ -4,14 +4,19 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>으차방 보드게임</title>
-    <link rel="stylesheet" href="board.css">
-    <link rel="stylesheet" href="dice.css">
-    <link rel="stylesheet" href="popup.css">
-</head>
 
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>으차방 보드게임</title>
+
+    <link rel="stylesheet" href="board.css">
+    <link rel="stylesheet" href="../dice/dice.css">
+    <link rel="stylesheet" href="popup.css">
+
+</head>
 <body>
 
     <div class="container">
@@ -19,21 +24,25 @@
         <!-- 상단 정보 -->
         <div class="header">
 
-            <p class="hello">안녕하세요!</p>
+            <p class="hello">
+                안녕하세요!
+            </p>
 
-            <div class="playerTitle">
-                <h2 id="nickname">
-                    닉네임님
-                </h2>
-
-                <span id="joinDate"></span>
-
-                <span id="entryCode">
-                    입장코드(1234)
-                </span>
-            </div>
+            <h2 id="nickname">
+                닉네임님
+            </h2>
 
             <div class="statusBox">
+
+                <div class="statusItem">
+                    <span class="statusTitle">
+                        현재 위치
+                    </span>
+
+                    <strong id="position">
+                        0번
+                    </strong>
+                </div>
 
                 <div class="statusItem">
                     <span class="statusTitle">
@@ -47,17 +56,13 @@
 
                 <div class="statusItem">
                     <span class="statusTitle">
-                        현재 위치
+                        벙참 날짜
                     </span>
 
-                    <strong id="position">
-                        0번
+                    <strong id="joinDate">
+                        7월 6일
                     </strong>
                 </div>
-
-                <button id="diceBtn">
-                    주사위 굴리기
-                </button>
 
             </div>
 
@@ -80,6 +85,11 @@
 
         </div>
 
+        <!-- 버튼 -->
+        <button id="diceBtn">
+            주사위 굴리기
+        </button>
+
         <!-- 하단 안내 -->
         <div class="footerInfo">
 
@@ -95,7 +105,7 @@
 
             <div class="footerManager">
                 <span>운영관리담당 : 코코</span>
-                <span class="version" id="version"></span>
+                <span class="version">Ver 2.4.7</span>
             </div>
 
         </div>
@@ -147,21 +157,19 @@
 
     </div>
 
-    <!-- 결과 팝업 -->
-    <div id="popupModal" class="popupModal hidden">
+    <!-- 이벤트 팝업 -->
+    <div id="specialModal" class="specialModal hidden">
 
-        <div class="popupBox">
+        <div class="specialBox">
 
             <img
-                id="popupImage"
+                id="specialImage"
                 src=""
-                alt="">
+                alt="특별칸">
 
-            <p id="popupMessage"></p>
+            <p id="specialMessage"></p>
 
-            <p id="popupReward"></p>
-
-            <button id="popupCloseBtn">
+            <button id="specialCloseBtn">
                 확인
             </button>
 
@@ -170,15 +178,20 @@
     </div>
 
     <!-- 복권 팝업 -->
-    <div id="lotteryModal" class="lotteryModal hidden">
+    <div id="lotteryModal" class="specialModal hidden">
 
-        <div class="popupBox">
+        <div class="specialBox">
 
-            <h2>
-                으차방 행운복권
-            </h2>
+            <h2>으랏차차 행운복권</h2>
 
-            <div id="lotteryNumber">
+            <div
+                id="lotteryNumber"
+                style="
+                    font-size:80px;
+                    font-weight:bold;
+                    color:#ff4f91;
+                    margin:25px 0;
+                ">
                 ?
             </div>
 
@@ -194,8 +207,21 @@
 
     </div>
 
+    <!-- 시간 경고 팝업 -->
+    <div id="alertModal" class="alertModal hidden">
+
+        <div class="alertBox">
+
+            <p id="alertMessage"></p>
+
+            <button id="alertCloseBtn">
+                확인
+            </button>
+
+        </div>
+
+    </div>
+
     <script type="module" src="board.js"></script>
 
 </body>
-
-</html>
