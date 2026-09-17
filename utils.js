@@ -1,7 +1,7 @@
 // utils.js
 
 export function getVersion() {
-    return "2.5.1";
+    return "2.5.2";
 }
 
 // 숫자 두 자리
