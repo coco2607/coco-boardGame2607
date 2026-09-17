@@ -1,5 +1,9 @@
 // utils.js
 
+export function getVersion() {
+    return "2.5.1";
+}
+
 // 숫자 두 자리
 export function pad(value) {
     return String(value).padStart(2, "0");

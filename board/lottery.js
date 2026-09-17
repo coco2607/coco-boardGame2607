@@ -129,6 +129,9 @@ export function showLotteryPopup() {
 
             // 결과 숫자를 유지한 채 결과 반환
             setTimeout(() => {
+                modal.classList.add("hidden");
+                modal.style.display = "none";
+
                 resolve(reward);
             }, 1400);
         };

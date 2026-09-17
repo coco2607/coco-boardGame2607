@@ -4,12 +4,10 @@
 <html lang="ko">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>으차방 보드게임</title>
     <link rel="stylesheet" href="login.css">
-
 </head>
 
 <body>
@@ -17,11 +15,13 @@
     <div class="container">
 
         <h1>으차방 보드게임</h1>
+
         <input
             type="text"
             id="nickname"
             placeholder="닉네임을 입력하세요."
             maxlength="2">
+
         <button id="enterBtn">
             입장하기
         </button>
@@ -30,47 +30,73 @@
 
     <!-- 로그인 모달 -->
     <div id="memberModal" class="modal hidden">
+
         <div class="modalBox">
+
             <h2>🔑 으차방 멤버 로그인</h2>
+
             <input
                 type="password"
                 id="memberPassword"
-                placeholder="비밀번호를 입력하세요.">
+                placeholder="비밀번호를 입력하세요."
+                maxlength="4"
+                inputmode="numeric">
+
             <p id="loginMessage"></p>
+
             <div class="modalButton">
+
                 <button id="memberOkBtn">
                     확인
                 </button>
+
                 <button id="memberCancelBtn">
                     닫기
                 </button>
+
             </div>
+
         </div>
+
     </div>
 
     <!-- 날짜 선택 모달 -->
     <div id="dateModal" class="modal hidden">
+
         <div class="modalBox">
+
             <h3>벙참 날짜를 선택하세요.</h3>
+
             <div class="dateButton">
+
                 <button id="todayBtn"></button>
+
                 <button id="yesterdayBtn"></button>
+
             </div>
+
         </div>
+
     </div>
 
     <!-- 경고 모달 -->
     <div id="warningModal" class="modal hidden">
+
         <div class="modalBox warningBox">
+
             <p id="warningText"></p>
+
             <button id="warningOk">
                 확인
             </button>
+
         </div>
+
     </div>
 
     <!-- 하단 안내 -->
     <div class="footerInfo">
+
         <div class="footerTitle">
             카카오톡 오픈채팅
         </div>
@@ -83,12 +109,12 @@
 
         <div class="footerManager">
             <span>운영관리담당 : 코코</span>
-            <span class="version">Ver 2.4.7</span>
+            <span id="version"></span>
         </div>
+
     </div>
 
     <script type="module" src="login.js"></script>
 
 </body>
-
 </html>

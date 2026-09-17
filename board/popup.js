@@ -1,147 +1,304 @@
 // popup.js
 
+import {boardData} from "./boardData.js";
+import {showLotteryPopup} from "./lottery.js";
 
-// ========================================
-// 복권 당첨금
-// ========================================
-function getLotteryPrize() {
-
-    const rand = Math.random();
-
-    if (rand < 0.40) return 3;
-    if (rand < 0.75) return 4;
-    if (rand < 0.85) return 5;
-    if (rand < 0.93) return 6;
-    if (rand < 0.98) return 7;
-
-    return 8;
-}
-
-
-// ========================================
 // 일반 팝업
-// ========================================
 export function showPopup(
     message,
-    image,
-    type = ""
+    image = "",
+    reward = ""
 ) {
-
     return new Promise(resolve => {
 
-        const modal = document.getElementById("specialModal");
-        const messageElement = document.getElementById("specialMessage");
-        const imageElement = document.getElementById("specialImage");
-        const button = document.getElementById("specialCloseBtn");
+        const modal =
+            document.getElementById("popupModal");
 
-        messageElement.innerHTML = message;
+        const messageElement =
+            document.getElementById("popupMessage");
+
+        const imageElement =
+            document.getElementById("popupImage");
+
+        const rewardElement =
+            document.getElementById("popupReward");
+
+        const button =
+            document.getElementById("popupCloseBtn");
+
+        const lotteryModal =
+            document.getElementById("lotteryModal");
+
+        if (
+            !modal ||
+            !messageElement ||
+            !imageElement ||
+            !rewardElement ||
+            !button
+        ) {
+            resolve(0);
+            return;
+        }
+
+        messageElement.innerHTML = "";
+        rewardElement.innerHTML = "";
+
+        imageElement.removeAttribute("src");
+        imageElement.style.display = "none";
 
         if (image) {
-            imageElement.src = `../images/special/${image}`;
-            imageElement.style.display = "block";
-        } else {
-            imageElement.style.display = "none";
+            imageElement.src =
+                `../images/board/${image}`;
+
+            imageElement.style.display =
+                "block";
         }
 
-        // 버튼
-        if (type === "lottery") {
-            button.textContent = "복권 긁기";
-        } else {
-            button.textContent = "확인";
-        }
+        messageElement.innerHTML =
+            message || "";
 
-        button.onclick = async function () {
+        messageElement.style.display =
+            message ? "block" : "none";
+
+        rewardElement.innerHTML =
+            reward || "";
+
+        rewardElement.style.display =
+            reward ? "block" : "none";
+
+        button.textContent = "확인";
+
+        button.onclick = () => {
 
             modal.classList.add("hidden");
+            modal.style.display = "none";
 
-            // 복권
-            if (type === "lottery") {
-                const prize = await showLotteryPopup();
-                resolve(prize);
-                return;
+            if (lotteryModal) {
+                lotteryModal.classList.add(
+                    "hidden"
+                );
+
+                lotteryModal.style.display =
+                    "none";
             }
 
-            // 일반 팝업
             resolve(0);
         };
 
-        // 팝업 표시
         modal.classList.remove("hidden");
+        modal.style.display = "flex";
     });
 }
 
+// 이동 결과 처리
+export async function handleMoveResult(
+    moveResult
+) {
+    if (!moveResult) {
+        return null;
+    }
 
+    const start =
+        Number(moveResult.start) || 0;
 
-// 복권 긁기
-export function showLotteryPopup() {
+    const dice =
+        Number(moveResult.dice) || 0;
 
-    return new Promise(resolve => {
+    const end =
+        Number(moveResult.end) || 0;
 
-        const modal = document.getElementById("lotteryModal");
-        const number = document.getElementById("lotteryNumber");
-        const message = document.getElementById("lotteryMessage");
-        const button = document.getElementById("lotteryBtn");
+    let totalPoint =
+        Number(
+            sessionStorage.getItem(
+                "point"
+            )
+        ) || 0;
 
+    let bankPoint = 0;
+    let point = 0;
+    let getP = 0;
+    let type = "";
+    let message = "";
+    let image = "";
 
-        // 복권 팝업 표시
-        modal.classList.remove("hidden");
-        button.style.display = "none";
-        number.textContent = "?";
-        message.textContent = "복권을 긁는 중...";
+    // 40번 통과 시 은행 보상
+    if (
+        moveResult.crossed40 === true &&
+        start !== 40
+    ) {
 
-        // 당첨금 결정
-        const prize = getLotteryPrize();
+        const bankTile =
+            boardData[40];
 
-        const speeds = [
-            40, 70, 100, 130, 160,
-            190, 220, 250, 280, 310,
-            340, 370, 400, 430, 460,
-            490, 520, 550, 580, 610,
-            640, 670, 700, 730, 760,
-            790, 820, 850, 880, 910,
-            940, 970, 1000, 1100, 1200,
-            1300, 1400, 1500, 1600, 1750,
-            1900, 2100, 2300, 2500, 2800,
-            3200, 3600, 4000
-        ];
+        if (bankTile) {
 
-        let lastNumber = 0;
+            bankPoint =
+                Number(
+                    bankTile.point
+                ) || 0;
 
-        speeds.forEach((time, index) => {
-                setTimeout(() => {
+            const bankMessage =
+                Array.isArray(
+                    bankTile.message
+                )
+                    ? bankTile.message[
+                        Math.floor(
+                            Math.random() *
+                            bankTile.message.length
+                        )
+                    ]
+                    : bankTile.message || "";
 
-                    // 마지막 숫자
-                    if (index ===speeds.length - 1)
-                    {
-                        number.textContent = prize;
-                        message.innerHTML = "";
-                        button.style.display = "inline-block";
-                        button.textContent = "확인";
+            totalPoint +=
+                bankPoint;
 
-                        // 확인 버튼
-                        button.onclick =
-                            async function () {
-                                modal.classList.add("hidden");
-                                resolve(prize);
+            getP +=
+                bankPoint;
 
-                            };
-                    } else {
+            await showPopup(
+                bankMessage,
+                bankTile.image || "",
+                `+${bankPoint.toLocaleString()}P`
+            );
+        }
+    }
 
-                        let random;
-                        do {
-                            random =
-                                Math.floor(
-                                    Math.random() * 6
-                                ) + 3;
-                        } while (
-                            random ===
-                            lastNumber
-                        );
-                        lastNumber =random;
-                        number.textContent =random;
-                    }
-                }, time);
-            }
+    // 도착 칸
+    const tile =
+        boardData[end];
+
+    if (!tile) {
+
+        return {
+            start: start,
+            dice: dice,
+            end: end,
+            type: "",
+            point: 0,
+            getP: getP,
+            totalPoint: totalPoint,
+            bankPoint: bankPoint,
+            message: "",
+            image: ""
+        };
+    }
+
+    type =
+        tile.type || "";
+
+    // 복권
+    if (type === "lottery") {
+
+        point =
+            Number(
+                await showLotteryPopup()
+            ) || 0;
+
+        totalPoint +=
+            point;
+
+        getP +=
+            point;
+
+        await showPopup(
+            `${point.toLocaleString()}점을 획득하셨습니다.`
         );
-    });
+
+        return {
+            start: start,
+            dice: dice,
+            end: end,
+            type: type,
+            point: point,
+            getP: getP,
+            totalPoint: totalPoint,
+            bankPoint: bankPoint,
+            message: "",
+            image: ""
+        };
+    }
+
+    // 도착 칸 포인트
+    point =
+        Number(tile.point) || 0;
+
+    totalPoint +=
+        point;
+
+    getP +=
+        point;
+
+    // 메시지
+    if (
+        Array.isArray(tile.message)
+    ) {
+
+        message =
+            tile.message[
+                Math.floor(
+                    Math.random() *
+                    tile.message.length
+                )
+            ];
+
+    } else {
+
+        message =
+            tile.message || "";
+    }
+
+    image =
+        tile.image || "";
+
+    // 팝업 보상
+    let reward = "";
+
+    if (point > 0) {
+
+        reward =
+            `+${point.toLocaleString()}P`;
+
+    } else if (point < 0) {
+
+        reward =
+            `${point.toLocaleString()}P`;
+    }
+
+    if (message || image) {
+
+        await showPopup(
+            message,
+            image,
+            reward
+        );
+
+    } else if (point > 0) {
+
+        await showPopup(
+            "포인트를 획득했습니다!",
+            "",
+            reward
+        );
+
+    } else if (point < 0) {
+
+        await showPopup(
+            "포인트가 차감되었습니다.",
+            "",
+            reward
+        );
+    }
+
+    return {
+        start: start,
+        dice: dice,
+        end: end,
+        type: type,
+        point: point,
+        getP: getP,
+        totalPoint: totalPoint,
+        bankPoint: bankPoint,
+        message: message,
+        image: image
+    };
 }

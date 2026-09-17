@@ -1,7 +1,8 @@
 // firebase.js
 
-import { initializeApp
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 
 import {
     getDatabase,
@@ -15,25 +16,20 @@ import {
     onDisconnect,
     serverTimestamp,
     runTransaction
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 
-import { createId, getCurrentDate, getCurrentTime
-} from "./utils.js";
-
-// firebase설정
 const firebaseConfig = {
-    apiKey: "AIzaSy......",
-    authDomain: "dice2607.firebaseapp.com",
-    databaseURL: "https://dice2607-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "dice2607",
-    storageBucket: "dice2607.firebasestorage.app",
-    messagingSenderId: "308468191758",
-    appId: "1:308468191758:web:4b0663..."
+    apiKey: "AIzaSyDJNLTppKlcIJrLS7F1gu6PYOyVmnKtsfU",
+    authDomain: "wany2608.firebaseapp.com",
+    databaseURL: "https://wany2608-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "wany2608",
+    storageBucket: "wany2608.firebasestorage.app",
+    messagingSenderId: "270617158648",
+    appId: "1:270617158648:web:6642e85eeb4155924bec0d"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 
 export {
     db,
@@ -41,7 +37,7 @@ export {
     get,
     set,
     update,
-   remove,
+    remove,
     push,
     onValue,
     onDisconnect,
