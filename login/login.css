@@ -249,17 +249,19 @@ body{
 }
 #footerArea{
     position:fixed;
-    left:0;
+    left:50%;
     bottom:0;
     z-index:1000;
     display:flex;
     justify-content:space-between;
     align-items:center;
     width:100%;
+    max-width:430px;
     height:44px;
-    padding:0 2%;
+    padding:0 15px;
     border-top:1px solid #D9D9D9;
     background:#FFF7FA;
+    transform:translateX(-50%);
 }
 #footerArea .left{
     display:flex;
