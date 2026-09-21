@@ -1,116 +1,121 @@
-/* board.css */
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
-
-/* 기본 설정 */
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
     font-family:"Pretendard",sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    user-select:none;
+    -webkit-user-select:none;
 }
-
 html,
 body{
     width:100%;
     height:100%;
     overflow:hidden;
 }
-
 body{
     background:#FFF7FA;
 }
-
-.container{
-    width:100%;
-    max-width:430px;
-    height:100dvh;
-    margin:0 auto;
-    padding:42px 15px 60px;
+.layout{
     display:flex;
     flex-direction:column;
-    overflow:hidden;
+    width:100%;
+    min-height:100dvh;
+    padding-bottom:44px;
 }
-
-/* 상단 */
+#topArea{
+    width:100%;
+    min-height:36px;
+}
+#upperArea{
+    width:100%;
+    min-height:60px;
+}
 .header{
-    flex:0 0 auto;
-    margin-bottom:-20px;
+    width:100%;
+    max-width:430px;
+    margin:0 auto;
+    padding:0 4%;
 }
-
-.hello{
-    font-size:12.9px;
-    color:#666;
-    margin-bottom:3px;
-}
-
-.playerTitle{
+.headerRow{
     display:flex;
+    justify-content:space-between;
     align-items:center;
-    gap:8px;
-    margin-bottom:12px;
-    min-width:0;
+    width:100%;
+    padding:0 2%;
+    margin-bottom:14px;
 }
-
+.hello{
+    color:#555;
+    font-size:14px;
+    white-space:nowrap;
+}
+#joinDate{
+    color:#333;
+    font-weight:600;
+}
 #nickname{
     margin:0;
-    font-size:24px;
     color:#333;
+    font-size:16px;
+    font-weight:700;
     line-height:1.2;
     white-space:nowrap;
 }
-
-#joinDate{
-    flex-shrink:0;
-    font-size:13.9px;
-    font-weight:500;
-    color:#777;
+.userInfo{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
     white-space:nowrap;
 }
-
-/* 가로 상태 바 */
+.pointText{
+    color:#555;
+    font-size:13px;
+    font-weight:600;
+}
+.pointText strong{
+    color:#FF4F93;
+    font-size:13.5px;
+    font-weight:700;
+}
 .statusBox{
-    width:100%;
-    height:64px;
     display:flex;
     align-items:center;
-    gap:0;
+    width:100%;
+    height:64px;
     padding:6px;
-    background:#FFFFFF;
     border-radius:12px;
+    background:#FFF;
     box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-
 .statusItem{
-    flex:1;
-    min-width:0;
-    height:100%;
     display:flex;
+    flex:1;
     flex-direction:column;
     justify-content:center;
     align-items:center;
-    padding:0 8px;
+    min-width:0;
+    height:100%;
+    padding:0 0px;
     text-align:center;
 }
-
 .statusItem + .statusItem{
     border-left:1px solid #E8E8E8;
 }
-
 .statusTitle{
     display:block;
     margin-bottom:2px;
-    font-size:10px;
     color:#888;
+    font-size:11px;
+    letter-spacing:-1;
 }
-
 .statusItem strong{
     display:block;
-    font-size:18px;
-    line-height:1.1;
     color:#FF4F93;
+    font-size:18px;
+    letter-spacing:1.5;
 }
-
-/* 주사위 버튼 */
 #diceBtn{
     flex:1.35;
     min-width:0;
@@ -120,99 +125,101 @@ body{
     border:none;
     border-radius:10px;
     background:#FF4F93;
-    color:#FFFFFF;
-    font-size:17px;
-    font-weight:bold;
+    color:#FFF;
+    font-size:18px;
+    font-weight:700;
     line-height:1;
     cursor:pointer;
     transition:.2s;
 }
-
 #diceBtn:hover{
     background:#F23C86;
 }
-
 #diceBtn:active{
     background:#D93474;
 }
-
-/* 주사위 사용 불가 상태 */
 #diceBtn.cooldown{
     background:#D9D9D9;
-    color:#777777;
+    color:#777;
 }
-
-/* 보드 */
+#contentArea{
+    display:flex;
+    flex:1;
+    justify-content:center;
+    align-items:flex-start;
+    width:100%;
+    min-height:0;
+    padding:0px 12px 0px;
+    overflow-y:auto;
+}
 .boardBox{
     position:relative;
-    width:min(
-        100%,
-        calc(100dvh - 220px)
-    );
+    width:min(100%,430px);
     aspect-ratio:1 / 1;
-    margin:10px auto;
-    flex:0 1 auto;
+    flex:0 0 auto;
+    margin:0 auto;
 }
-
 .boardImage{
+    display:block;
     width:100%;
     height:100%;
-    display:block;
     object-fit:contain;
 }
-
 .playerPin{
     position:absolute;
-    width:34px;
-    left:0;
     top:0;
-    transform:translate(-50%,-80%);
+    left:0;
     z-index:100;
+    width:34px;
+    transform:translate(-50%,-80%);
     pointer-events:none;
 }
-
-/* 하단 안내 */
-.footerInfo{
+#footerArea{
     position:fixed;
-    left:50%;
+    left:0;
     bottom:0;
-    width:100%;
-    max-width:430px;
-    padding:7px 15px;
-    background:transparent;
-    border-top:none;
-    text-align:left;
-    transform:translateX(-50%);
-}
-
-.footerTitle{
-    margin-bottom:-2px;
-    font-size:9px;
-    font-weight:500;
-    color:#666;
-}
-
-.footerInfo a{
-    font-size:12.5px;
-    font-weight:500;
-    color:#2F7FA3;
-    text-decoration:none;
-}
-
-.footerInfo a:hover{
-    text-decoration:underline;
-}
-
-.footerManager{
-    margin-top:1px;
+    z-index:100;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    font-size:8.5px;
-    color:#666;
+    width:100%;
+    min-height:44px;
+    padding:0 2%;
+    border-top:1px solid #D9D9D9;
+    background:#FFF7FA;
 }
-
-.version{
+#footerArea .left{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    text-align:left;
+}
+#footerArea .left>div{
     color:#666;
-    font-size:9.5px;
+    font-size:10.2px;
+    font-weight:500;
+    letter-spacing:-0.4px;
+}
+#footerArea a{
+    color:#2F7FA3;
+    font-size:12.8px;
+    font-weight:500;
+    letter-spacing:0.4px;
+    text-decoration:none;
+}
+#footerArea a:hover{
+    text-decoration:underline;
+}
+#footerArea .right{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    color:#666;
+    font-size:9.8px;
+    text-align:right;
+}
+#footerArea #version{
+    color:#666;
+    font-size:10.8px;
+    letter-spacing:0.4px;
 }

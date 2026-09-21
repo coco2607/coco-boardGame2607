@@ -1,10 +1,8 @@
 // login.js
-
 import {
-    getCurrentDate,
-    trim,
-    pad,
-    getVersion
+    koDate,
+    appVersion,
+    adminName
 } from "../utils.js";
 
 import {
@@ -12,334 +10,150 @@ import {
     checkPartyDateAvailable
 } from "./loginFirebase.js";
 
-// 요소 가져오기
-const nickname = document.getElementById("nickname");
 const enterBtn = document.getElementById("enterBtn");
-const memberModal = document.getElementById("memberModal");
+const loginModal = document.getElementById("loginModal");
+const nickname = document.getElementById("nickname");
 const memberPassword = document.getElementById("memberPassword");
 const loginMessage = document.getElementById("loginMessage");
-const memberOkBtn = document.getElementById("memberOkBtn");
-const memberCancelBtn = document.getElementById("memberCancelBtn");
+const nicknameOkBtn = document.getElementById("nicknameOkBtn");
+const nicknameCancelBtn = document.getElementById("nicknameCancelBtn");
 const dateModal = document.getElementById("dateModal");
+const dateCancelBtn = document.getElementById("dateCancelBtn");
 const todayBtn = document.getElementById("todayBtn");
 const yesterdayBtn = document.getElementById("yesterdayBtn");
 const warningModal = document.getElementById("warningModal");
 const warningText = document.getElementById("warningText");
 const warningOk = document.getElementById("warningOk");
-const version = document.getElementById("version");
 
-let processing = false;
-
-// 초기 실행
 setDateButton();
-version.textContent =
-    `Ver ${getVersion()}`;
 
-// 이벤트
-enterBtn.addEventListener(
-    "click",
-    openMemberModal
-);
+enterBtn.addEventListener("click",openLogin);
+nicknameOkBtn.addEventListener("click",login);
+nicknameCancelBtn.addEventListener("click",closeLogin);
+dateCancelBtn.addEventListener("click",closeDate);
+todayBtn.addEventListener("click",() => selectDate(getToday()));
+yesterdayBtn.addEventListener("click",() => selectDate(getYesterday()));
+warningOk.addEventListener("click",closeWarning);
+document.getElementById("version").textContent = `Ver ${appVersion}`;
+document.getElementById("admin").textContent = `관리자 ${adminName}`;
 
-memberOkBtn.addEventListener(
-    "click",
-    checkPassword
-);
-
-memberCancelBtn.addEventListener(
-    "click",
-    closeMemberModal
-);
-
-todayBtn.addEventListener(
-    "click",
-    () => selectJoinDate(
-        getCurrentDate()
-    )
-);
-
-yesterdayBtn.addEventListener(
-    "click",
-    selectYesterday
-);
-
-warningOk.addEventListener(
-    "click",
-    closeWarning
-);
-
-// 로그인 모달
-function openMemberModal() {
-    const name =
-        trim(nickname.value);
-
-    if (!name) {
-        showWarning(
-            "닉네임을 입력하세요."
-        );
-
-        nickname.focus();
-
-        return;
-    }
-
-    if (!/^[가-힣]{2}$/.test(name)) {
-        showWarning(
-            "닉네임 2자를 입력하세요."
-        );
-
-        nickname.focus();
-        nickname.select();
-
-        return;
-    }
-
+function openLogin(){
+    nickname.value = "";
     memberPassword.value = "";
     loginMessage.textContent = "";
-
-    memberModal.classList.remove(
-        "hidden"
-    );
-
-    memberPassword.focus();
+    loginModal.classList.remove("hidden");
+    nickname.focus();
 }
 
-// 비밀번호 확인
-async function checkPassword() {
-    if (processing) {
+async function login(){
+    const name = nickname.value.trim();
+    const password = memberPassword.value.trim();
+
+    if(!name){
+        showWarning("닉네임을 입력하세요.");
         return;
     }
 
-    const password =
-        trim(memberPassword.value);
+    if(!password){
+        showWarning("비밀번호를 입력하세요.");
+        return;
+    }
 
-    if (!password) {
-        loginMessage.textContent =
-            "비밀번호를 입력하세요.";
+    const valid = await checkAccessPassword(password);
 
+    if(!valid){
+        showWarning("비밀번호가 맞지 않습니다.");
         memberPassword.focus();
-
         return;
     }
 
-    processing = true;
-
-    try {
-        const valid =
-            await checkAccessPassword(
-                password
-            );
-
-        if (!valid) {
-            loginMessage.textContent =
-                "비밀번호가 맞지 않습니다.";
-
-            memberPassword.focus();
-
-            return;
-        }
-
-        memberModal.classList.add(
-            "hidden"
-        );
-
-        dateModal.classList.remove(
-            "hidden"
-        );
-
-    } finally {
-        processing = false;
-    }
+    loginModal.classList.add("hidden");
+    dateModal.classList.remove("hidden");
 }
 
-// 멤버 로그인 모달 닫기
-function closeMemberModal() {
-    memberModal.classList.add(
-        "hidden"
-    );
-
-    memberPassword.value = "";
-    loginMessage.textContent = "";
+function closeLogin(){
+    loginModal.classList.add("hidden");
 }
 
-// 어제 날짜 선택
-async function selectYesterday() {
-    const today =
-        getCurrentDate();
-
-    const date =
-        new Date(
-            `${today}T12:00:00+09:00`
-        );
-
-    date.setDate(
-        date.getDate() - 1
-    );
-
-    await selectJoinDate(
-        formatDate(date)
-    );
+function closeDate(){
+    dateModal.classList.add("hidden");
 }
 
-// 벙 날짜 선택
-async function selectJoinDate(joinDate) {
-    if (processing) {
+async function selectDate(joinDate){
+    const name = nickname.value.trim();
+
+    if(!name || !joinDate){
+        showWarning("입장 정보가 올바르지 않습니다.");
         return;
     }
 
-    const playerName =
-        trim(nickname.value);
+    const result = await checkPartyDateAvailable(name,joinDate);
 
-    if (!playerName || !joinDate) {
-        showWarning(
-            "입장 정보가 올바르지 않습니다."
-        );
-
+    if(!result.available && result.reason === "alreadyToday"){
+        showWarning("하루에 1번 참여가능합니다.");
+        return;
+    }
+    if(!result.available && result.reason === "pastDate"){
+        showWarning("벙 날짜를 다시 확인하세요.");
         return;
     }
 
-    processing = true;
+    const date = new Date(`${joinDate}T12:00:00+09:00`);
 
-    try {
-        const result =
-            await checkPartyDateAvailable(
-                playerName,
-                joinDate
-            );
+    sessionStorage.setItem("nickname",name);
+    sessionStorage.setItem("joinDate",joinDate);
+    sessionStorage.setItem("joinDateText",formatDate(date));
 
-        // 오늘 이미 참여한 경우
-        if (
-            !result.available &&
-            result.reason === "alreadyToday"
-        ) {
-            showWarning(
-                "벙 게임 참여는 하루에 1번만 가능합니다."
-            );
-
-            return;
-        }
-
-        // 과거 날짜 제한
-        if (
-            !result.available &&
-            result.reason === "pastDate"
-        ) {
-            showWarning(
-                "벙 날짜를 다시 확인하세요."
-            );
-
-            return;
-        }
-
-        sessionStorage.setItem(
-            "nickname",
-            playerName
-        );
-
-        sessionStorage.setItem(
-            "joinDate",
-            joinDate
-        );
-
-        sessionStorage.setItem(
-            "entryCode",
-            "공통"
-        );
-
-        sessionStorage.setItem(
-            "point",
-            "0"
-        );
-
-        sessionStorage.setItem(
-            "position",
-            "0"
-        );
-
-        location.href =
-            "../board/board.html";
-
-    } finally {
-        processing = false;
-    }
+    location.replace("../board/board.html");
 }
 
-// 날짜 버튼 표시
-function setDateButton() {
-    const today =
-        getCurrentDate();
+function getToday(){
+    return koDate();
+}
 
-    const yesterday =
-        new Date(
-            `${today}T12:00:00+09:00`
-        );
-
-    const week = [
-        "일",
-        "월",
-        "화",
-        "수",
-        "목",
-        "금",
-        "토"
-    ];
-
-    yesterday.setDate(
-        yesterday.getDate() - 1
+function getYesterday(){
+    const date = new Date(
+        `${koDate()}T12:00:00+09:00`
     );
 
-    todayBtn.textContent =
-        formatButtonDate(
-            new Date(
-                `${today}T12:00:00+09:00`
-            ),
-            week
-        );
+    date.setDate(date.getDate() - 1);
 
-    yesterdayBtn.textContent =
-        formatButtonDate(
-            yesterday,
-            week
-        );
-}
-
-// 버튼 날짜 형식
-function formatButtonDate(
-    date,
-    week
-) {
-    return `${
-        date.getMonth() + 1
-    }월 ${
-        date.getDate()
-    }일 ${
-        week[date.getDay()]
-    }요일`;
-}
-
-// 날짜 형식
-function formatDate(date) {
     return `${
         date.getFullYear()
     }-${
-        pad(date.getMonth() + 1)
+        String(date.getMonth() + 1).padStart(2,"0")
     }-${
-        pad(date.getDate())
+        String(date.getDate()).padStart(2,"0")
     }`;
 }
 
-// 경고 팝업
-function showWarning(message) {
-    warningText.textContent =
-        message;
+function setDateButton(){
+    const today = new Date(`${getToday()}T12:00:00+09:00`);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    todayBtn.textContent = formatDate(today);
+    yesterdayBtn.textContent = formatDate(yesterday);
+}
 
-    warningModal.classList.remove(
-        "hidden"
+function formatDate(date){
+    const week = ["일","월","화","수","목","금","토"];
+    return `${date.getMonth()+1}월 ${date.getDate()}일 ${week[date.getDay()]}요일`;
+}
+
+let warningTimer;
+
+function showWarning(message){
+    clearTimeout(warningTimer);
+
+    warningText.textContent = message;
+    warningModal.classList.remove("hidden");
+
+    warningTimer = setTimeout(
+        closeWarning,
+        2000
     );
 }
 
-function closeWarning() {
-    warningModal.classList.add(
-        "hidden"
-    );
+function closeWarning(){
+    warningModal.classList.add("hidden");
 }

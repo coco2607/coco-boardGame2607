@@ -1,231 +1,137 @@
 // board.js
-
 import "./dice.js";
 import {updateMarker} from "./move.js";
 import {getUser} from "./boardFirebase.js";
 
-// 요소 가져오기
 const nickname = document.getElementById("nickname");
 const joinDate = document.getElementById("joinDate");
 const totalPoint = document.getElementById("totalPoint");
+const position = document.getElementById("position");
 const diceBtn = document.getElementById("diceBtn");
 
-// 초기 실행
 init();
 
-async function init() {
-    try {
+async function init(){
+    try{
         await loadPlayer();
-    } catch (err) {
-
-        alert(
-            err.message ||
-            "플레이어 정보를 불러오지 못했습니다."
-        );
-
-        location.href = "../login/login.html";
+    }catch(err){
+        alert(err.message || "플레이어 정보를 불러오지 못했습니다.");
+        location.replace("../login/login.html");
     }
 }
 
-// 플레이어 정보 불러오기
-async function loadPlayer() {
-    const playerName =
-        sessionStorage.getItem("nickname");
+async function loadPlayer(){
+    const playerName = sessionStorage.getItem("nickname");
+    const playerJoinDate = sessionStorage.getItem("joinDate");
 
-    const playerJoinDate =
-        sessionStorage.getItem("joinDate");
-
-    if (!playerName) {
-        throw new Error(
-            "닉네임 정보가 없습니다."
-        );
+    if(!playerName){
+        throw new Error("닉네임 정보가 없습니다.");
     }
 
-    // 닉네임
-    nickname.textContent =
-        `${playerName}님`;
+    nickname.textContent = `${playerName}님`;
 
-    // 참여 날짜
-    if (playerJoinDate) {
-        const date =
-            new Date(`${playerJoinDate}T12:00:00`);
-
-        joinDate.textContent =
-            `${date.getMonth() + 1}월 ${date.getDate()}일`;
-    } else {
+    if(playerJoinDate){
+        const date = new Date(`${playerJoinDate}T12:00:00+09:00`);
+        joinDate.textContent = `${date.getMonth()+1}월 ${date.getDate()}일`;
+    }else{
         joinDate.textContent = "";
     }
 
-    // Firebase에서 회원 정보 가져오기
-    const user =
-        await getUser(playerName);
+    const user = await getUser(playerName);
+    const playerPosition = Number(user?.position) || 0;
+    const point = Number(user?.point) || 0;
 
-    // 현재 위치
-    const playerPosition =
-        Number(user?.position) || 0;
+    sessionStorage.setItem("position",String(playerPosition));
+    sessionStorage.setItem("point",String(point));
 
-    sessionStorage.setItem(
-        "position",
-        String(playerPosition)
-    );
+    position.textContent = `${playerPosition}번`;
+    totalPoint.textContent = point;
 
-    // 말 위치 표시
-    updateMarker(
-        playerPosition
-    );
-
-    // 누적 포인트
-    const point =
-        Number(user?.point) || 0;
-
-    sessionStorage.setItem(
-        "point",
-        String(point)
-    );
-
-    totalPoint.textContent =
-        `${point}P`;
-
-    // 오늘 주사위 사용 여부 확인
-    updateDiceButton(
-        user?.lastRoll
-    );
+    updateMarker(playerPosition);
+    updateDiceButton(user?.lastRoll);
 }
 
-// 누적 포인트 즉시 갱신
-window.updateTotalPoint = function(point) {
-    const finalPoint =
-        Number(point) || 0;
-
-    sessionStorage.setItem(
-        "point",
-        String(finalPoint)
-    );
-
-    totalPoint.textContent =
-        `${finalPoint}P`;
+window.updateTotalPoint = function(point){
+    const finalPoint = Number(point) || 0;
+    sessionStorage.setItem("point",String(finalPoint));
+    totalPoint.textContent = finalPoint;
 };
 
-// Firebase에서 누적 포인트 다시 가져오기
-window.refreshTotalPoint = async function() {
-    const playerName =
-        sessionStorage.getItem("nickname");
+window.refreshTotalPoint = async function(){
+    const playerName = sessionStorage.getItem("nickname");
 
-    if (!playerName) {
+    if(!playerName){
         return;
     }
 
-    try {
-        const user =
-            await getUser(playerName);
+    try{
+        const user = await getUser(playerName);
+        const point = Number(user?.point) || 0;
 
-        const point =
-            Number(user?.point) || 0;
-
-        sessionStorage.setItem(
-            "point",
-            String(point)
-        );
-
-        totalPoint.textContent =
-            `${point}P`;
-    } catch (err) {}
+        sessionStorage.setItem("point",String(point));
+        totalPoint.textContent = point;
+    }catch(err){}
 };
 
-// 주사위 사용 가능 여부 새로 확인
-window.refreshDiceAvailability = async function() {
-    const playerName =
-        sessionStorage.getItem("nickname");
+window.refreshDiceAvailability = async function(){
+    const playerName = sessionStorage.getItem("nickname");
 
-    if (!playerName) {
+    if(!playerName){
         return;
     }
 
-    try {
-        const user =
-            await getUser(playerName);
-
-        updateDiceButton(
-            user?.lastRoll
-        );
-
-    } catch (err) {}
+    try{
+        const user = await getUser(playerName);
+        updateDiceButton(user?.lastRoll);
+    }catch(err){}
 };
 
-// 주사위 버튼 상태 변경
-function updateDiceButton(lastRoll) {
-    if (!diceBtn) {
+function updateDiceButton(lastRoll){
+    if(!diceBtn){
         return;
     }
 
-    const usedToday =
-        isToday(lastRoll);
+    const used = isUsedJoinDate(lastRoll);
+    diceBtn.disabled = used;
 
-    if (usedToday) {
-        diceBtn.disabled = true;
+    if(used){
         diceBtn.classList.add("cooldown");
-    } else {
-        diceBtn.disabled = false;
+    }else{
         diceBtn.classList.remove("cooldown");
     }
 }
 
-// 한국 시간 기준 오늘인지 확인
-function isToday(timestamp) {
-    if (
-        timestamp === null ||
-        timestamp === undefined ||
-        timestamp === ""
-    ) {
+function isUsedJoinDate(timestamp){
+    const rollTime = Number(timestamp);
+
+    if(!Number.isFinite(rollTime)){
         return false;
     }
 
-    const rollTime =
-        Number(timestamp);
+    const playerJoinDate = sessionStorage.getItem("joinDate");
 
-    if (!Number.isFinite(rollTime)) {
+    if(!playerJoinDate){
         return false;
     }
 
-    const formatter =
-        new Intl.DateTimeFormat(
-            "ko-KR",
-            {
-                timeZone: "Asia/Seoul",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit"
-            }
-        );
+    const rollDate = new Intl.DateTimeFormat("en-CA",{
+        timeZone:"Asia/Seoul",
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit"
+    }).format(new Date(rollTime));
 
-    const today =
-        formatter.format(new Date());
-
-    const rollDate =
-        formatter.format(
-            new Date(rollTime)
-        );
-
-    return today === rollDate;
+    return playerJoinDate === rollDate;
 }
 
+window.testMove = function(positionValue){
+    const pos = Number(positionValue);
 
-// 테스트용 강제 이동
-window.testMove = function(positionValue) {
-    const pos =
-        Number(positionValue);
-
-    if (pos < 1 || pos > 40) {
+    if(pos < 1 || pos > 40){
         return;
     }
 
-    sessionStorage.setItem(
-        "position",
-        String(pos)
-    );
-
-    position.textContent =
-        `${pos}번`;
-
+    sessionStorage.setItem("position",String(pos));
+    position.textContent = `${pos}번`;
     updateMarker(pos);
 };

@@ -1,242 +1,131 @@
-<!--board.html-->
-
+<!-- board.html -->
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
-
-    <title>으차방 보드게임</title>
-
+    <title>으차방 벙 게임</title>
     <link rel="stylesheet" href="board.css">
     <link rel="stylesheet" href="dice.css">
     <link rel="stylesheet" href="popup.css">
-
 </head>
-
 <body>
-
-    <div class="container">
-
-        <!-- 상단 정보 -->
-        <div class="header">
-
-            <p class="hello">
-                안녕하세요!
-            </p>
-
-            <div class="playerTitle">
-
-                <h2 id="nickname">
-                    닉네임님
-                </h2>
-
-                <span id="joinDate"></span>
-
-            </div>
-
-            <div class="statusBox">
-
-                <div class="statusItem">
-
-                    <span class="statusTitle">
-                        누적 포인트
-                    </span>
-
-                    <strong id="totalPoint">
-                        0P
-                    </strong>
-
+    <div class="layout">
+        <header id="topArea"></header>
+        <nav id="upperArea">
+            <div class="header">
+                <div class="headerRow">
+                    <p class="hello">
+                        <strong id="joinDate"></strong>
+                        언제나 즐거운 벙!
+                    </p>
+                    <div class="userInfo">
+                        <h2 id="nickname">닉네임</h2>
+                        <span class="pointText">POINT <strong id="totalPoint">0</strong></span>
+                    </div>
                 </div>
-
-                <div class="statusItem">
-
-                    <span class="statusTitle">
-                        현재 위치
-                    </span>
-
-                    <strong id="position">
-                        0번
-                    </strong>
-
+                <div class="statusBox">
+                    <div class="statusItem">
+                        <span class="statusTitle">현재 위치</span>
+                        <strong id="position">0번</strong>
+                    </div>
+                    <button id="diceBtn">주사위 굴리기</button>
                 </div>
-
-                <button id="diceBtn">
-                    주사위 굴리기
-                </button>
-
             </div>
-
-        </div>
-
-        <!-- 보드 -->
-        <div class="boardBox">
-
-            <img
-                src="../images/board/board.jpg"
-                id="boardImage"
-                class="boardImage"
-                alt="보드판">
-
-            <img
-                src="../images/board/marker.webp"
-                id="playerPin"
-                class="playerPin"
-                alt="말">
-
-        </div>
-
-        <!-- 하단 안내 -->
-        <div class="footerInfo">
-
-            <div class="footerTitle">
-                카카오톡 오픈채팅
+        </nav>
+        <main id="contentArea">
+            <div class="boardBox">
+                <img
+                    src="../images/board/board.webp"
+                    id="boardImage"
+                    class="boardImage"
+                    alt="보드판">
+                <img
+                    src="../images/board/marker.webp"
+                    id="playerPin"
+                    class="playerPin"
+                    alt="말">
             </div>
-
-            <a
-                href="https://open.kakao.com/o/g7b2DGti"
-                target="_blank">
-                8090 으차방
-            </a>
-
-            <div class="footerManager">
-
-                <span>
-                    운영관리담당 : 코코
-                </span>
-
-                <span
-                    class="version"
-                    id="version">
-                </span>
-
+        </main>
+        <footer id="footerArea">
+            <div class="left">
+                <div>카카오톡 오픈채팅</div>
+                <a
+                    href="https://open.kakao.com/o/g7b2DGti"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    8090 으차방
+                </a>
             </div>
-
-        </div>
-
+            <div class="right">
+                <div id="version"></div>
+                <div id="admin"></div>
+            </div>
+        </footer>
     </div>
-
-    <!-- 주사위 모달 -->
-    <div
-        id="diceModal"
-        class="modal hidden">
-
+    <div id="diceModal" class="modal hidden">
         <div class="diceBox">
-
             <div class="scene">
-
-                <div
-                    id="dice"
-                    class="cube">
-
+                <div id="dice" class="cube">
                     <div class="face front">
                         <img
-                            src="../images/dice/dice1.png"
+                            src="../images/dice/dice1.webp"
                             alt="">
                     </div>
-
                     <div class="face back">
                         <img
-                            src="../images/dice/dice6.png"
+                            src="../images/dice/dice6.webp"
                             alt="">
                     </div>
-
                     <div class="face right">
                         <img
-                            src="../images/dice/dice3.png"
+                            src="../images/dice/dice3.webp"
                             alt="">
                     </div>
-
                     <div class="face left">
                         <img
-                            src="../images/dice/dice4.png"
+                            src="../images/dice/dice4.webp"
                             alt="">
                     </div>
-
                     <div class="face top">
                         <img
-                            src="../images/dice/dice5.png"
+                            src="../images/dice/dice5.webp"
                             alt="">
                     </div>
-
                     <div class="face bottom">
                         <img
-                            src="../images/dice/dice2.png"
+                            src="../images/dice/dice2.webp"
                             alt="">
                     </div>
-
                 </div>
-
             </div>
-
-            <p id="diceResult">
-                주사위를 굴리는 중...
-            </p>
-
+            <p id="diceResult">주사위를 굴리는 중...</p>
         </div>
-
     </div>
-
-    <!-- 결과 팝업 -->
-    <div
-        id="popupModal"
-        class="popupModal hidden">
-
+    <div id="popupModal" class="popupModal hidden">
         <div class="popupBox">
-
-            <img
-                id="popupImage"
-                src=""
-                alt="">
-
+            <img id="popupImage" src="" alt="">
             <p id="popupMessage"></p>
-
             <p id="popupReward"></p>
-
-            <button id="popupCloseBtn">
-                확인
-            </button>
-
+            <button id="popupCloseBtn">확인</button>
         </div>
-
     </div>
-
-    <!-- 복권 팝업 -->
-    <div
-        id="lotteryModal"
-        class="lotteryModal hidden">
-
+    <div id="lotteryModal" class="lotteryModal hidden">
         <div class="popupBox">
-
-            <h2>
-                으차방 행운복권
-            </h2>
-
-            <div id="lotteryNumber">
-                ?
-            </div>
-
-            <p id="lotteryMessage">
-                복권을 긁어보세요!
-            </p>
-
-            <button id="lotteryBtn">
-                복권 긁기
-            </button>
-
+            <h2>으차방 행운복권</h2>
+            <div id="lotteryNumber">?</div>
+            <p id="lotteryMessage">복권을 긁어보세요!</p>
+            <button id="lotteryBtn">복권 긁기</button>
         </div>
-
     </div>
-
-    <script
-        type="module"
-        src="board.js">
-    </script>
-
+    <div id="warningModal" class="warningModal hidden">
+        <div class="warningBox">
+            <p id="warningText"></p>
+            <button id="warningOk">확인</button>
+        </div>
+    </div>
+    <script type="module" src="board.js"></script>
 </body>
 </html>
