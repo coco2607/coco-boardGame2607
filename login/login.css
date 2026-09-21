@@ -159,8 +159,11 @@ body{
     border-bottom:1px solid #CCC;
     outline:none;
     background:transparent;
+    color:#333;
     font-size:17px;
     text-align:center;
+    user-select:text;
+    -webkit-user-select:text;
 }
 .loginBox input:focus{
     border-bottom:2px solid #FF4F93;
