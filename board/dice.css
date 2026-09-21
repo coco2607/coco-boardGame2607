@@ -10,9 +10,11 @@
     padding:20px;
     background:rgba(0,0,0,.45);
 }
+
 .modal.hidden{
     display:none;
 }
+
 .diceBox{
     display:flex;
     flex-direction:column;
@@ -25,12 +27,14 @@
     text-align:center;
     box-shadow:0 10px 30px rgba(0,0,0,.2);
 }
+
 #diceResult{
     margin-top:20px;
     color:#FF4F93;
     font-size:18px;
     font-weight:700;
 }
+
 .scene{
     display:flex;
     justify-content:center;
@@ -41,6 +45,7 @@
     perspective:1000px;
     perspective-origin:center;
 }
+
 #dice{
     position:relative;
     width:100px;
@@ -50,6 +55,7 @@
     transform-origin:center;
     will-change:transform;
 }
+
 #dice .face{
     position:absolute;
     width:100px;
@@ -59,6 +65,7 @@
     backface-visibility:hidden;
     -webkit-backface-visibility:hidden;
 }
+
 #dice img{
     display:block;
     width:100%;
@@ -68,21 +75,10 @@
     user-select:none;
     -webkit-user-select:none;
 }
-.front{
-    transform:rotateY(0deg) translateZ(50px);
-}
-.back{
-    transform:rotateY(180deg) translateZ(50px);
-}
-.right{
-    transform:rotateY(90deg) translateZ(50px);
-}
-.left{
-    transform:rotateY(-90deg) translateZ(50px);
-}
-.top{
-    transform:rotateX(90deg) translateZ(50px);
-}
-.bottom{
-    transform:rotateX(-90deg) translateZ(50px);
-}
+
+#dice .front{transform:rotateY(0deg) translateZ(50px);}
+#dice .back{transform:rotateY(180deg) translateZ(50px);}
+#dice .right{transform:rotateY(90deg) translateZ(50px);}
+#dice .left{transform:rotateY(-90deg) translateZ(50px);}
+#dice .top{transform:rotateX(90deg) translateZ(50px);}
+#dice .bottom{transform:rotateX(-90deg) translateZ(50px);}

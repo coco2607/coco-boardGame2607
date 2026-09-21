@@ -1,13 +1,21 @@
 // board.js
+
 import "./dice.js";
 import {updateMarker} from "./move.js";
 import {getUser} from "./boardFirebase.js";
+import {
+    appVersion,
+    adminName
+} from "../utils.js";
 
 const nickname = document.getElementById("nickname");
 const joinDate = document.getElementById("joinDate");
 const totalPoint = document.getElementById("totalPoint");
 const position = document.getElementById("position");
 const diceBtn = document.getElementById("diceBtn");
+
+document.getElementById("version").textContent = `Ver ${appVersion}`;
+document.getElementById("admin").textContent = `관리자 ${adminName}`;
 
 init();
 
